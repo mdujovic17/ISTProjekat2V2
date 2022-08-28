@@ -18,7 +18,7 @@ namespace ISTWebAPI.Models
         public string companyAddress { get; set; }
         [Required]
         public string companyName { get; set; }
-        [Required]
+        [StringLength(9)]
         public string vat { get; set; }
     }
 }
