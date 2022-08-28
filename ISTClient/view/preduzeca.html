@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pocetna</title>
+
+    <!-- Bootstrap 5.2.0 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.css" rel="stylesheet" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.js" crossorigin="anonymous"></script>
+   
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.2/css/all.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand text-light" href="/">IST Projekat 2 (v2)</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div class="navbar-nav">
+                    <a class="nav-link text-light" aria-current="page" href="/">Početna</a>
+                    <a class="nav-link text-light active" aria-current="page" href="/preduzeca">Preduzeca</a>
+                    <a class="nav-link text-light" aria-current="page" href="/stavke">Stavke</a>
+                    <a class="nav-link text-light" aria-current="page" href="/bilans">Pregled bilansa</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="display-1 text-center my-auto p-5">Preduzeća</div>
+
+    <div class="container text-center my-auto mt-3">
+        <a type="button" class="col mx-1 btn btn-secondary btn-lg w-25" href="/add/preduzece">Novo preduzeće</a>
+        <a type="button" class="col mx-1 btn btn-secondary btn-lg w-25" href="/bilans">Pregled bilansa</a>
+        <table class="table table-stripped mt-3 mb-3">
+            <thead>
+                <tr>
+                    <th scope="col" colspan="1">ID</th>
+                    <th scope="col" colspan="1">Ime i prezime</th>
+                    <th scope="col" colspan="1">E-mail</th>
+                    <th scope="col" colspan="1">Naziv preduzeća</th>
+                    <th scope="col" colspan="2">PIB</th>
+                    <th>Detalji</th>
+                    <th>Izmeni</th>
+                    <th>Obriši</th>
+                </tr>
+            </thead>
+            <tbody>
+                ##TABLEDATA
+            </tbody>
+        </table>
+        <nav>
+            <ul class="pagination justify-content-center">
+              <li class="page-item">
+                <a class="page-link" href="#" aria-label="Previous">
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+              </li>
+              <li class="page-item"><a class="page-link" href="#">1</a></li>
+              <li class="page-item"><a class="page-link" href="#">2</a></li>
+              <li class="page-item"><a class="page-link" href="#">3</a></li>
+              <li class="page-item">
+                <a class="page-link" href="#" aria-label="Next">
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
+    </div>
+</body>
+</html>
