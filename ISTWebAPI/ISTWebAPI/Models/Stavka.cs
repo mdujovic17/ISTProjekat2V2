@@ -12,7 +12,7 @@ namespace ISTWebAPI.Models
         public float pricePerUnit { get; set; }
         [Required]
         public string unitOfMeasurement { get; set; }
-        [Range(0.000, 100000.000)]
+        [Range(1.000, 100000.000)]
         public float amount { get; set; }
     }
 }
