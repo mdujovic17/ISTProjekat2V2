@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pocetna</title>
+
+    <!-- Bootstrap 5.2.0 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.css" rel="stylesheet" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.js" crossorigin="anonymous"></script>
+   
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.2/css/all.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand text-light" href="/">IST Projekat 2 (v2)</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div class="navbar-nav">
+                    <a class="nav-link text-light" aria-current="page" href="/">Početna</a>
+                    <a class="nav-link text-light" aria-current="page" href="/preduzeca">Preduzeca</a>
+                    <a class="nav-link text-light" aria-current="page" href="/stavke">Stavke</a>
+                    <a class="nav-link text-light" aria-current="page" href="/bilans">Pregled bilansa</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="display-1 text-center my-auto p-5">Nova faktura</div>
+
+    <div class="container my-auto mt-5">
+        <form action="/fakture/add" method="post">
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="destinationCompanyVAT">Preduzece kome je namenjena fakutra</label>
+                    <select class="form-select" name="destinationCompanyVAT" id="destinationCompanyVAT">
+                        ##COMPANIES
+                    </select>
+                </div>
+                <div class="col">
+                    <label for="originCompanyVAT">Preduzece cije je faktura poreklo</label>
+                    <select class="form-select" name="originCompanyVAT" id="originCompanyVAT">
+                        ##COMPANIES
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="paymentDeadline">Datum isteka fakture</label>
+                    <input type="date" class="form-control" id="paymentDeadline" name="paymentDeadline" placeholder="21/7/2022" aria-label="Datum isteka fakture" required>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="item">Stavka</label>
+                    <select class="form-select" name="item" id="item">
+                        ##ITEMS
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <button type="submit" class="btn btn-outline-secondary w-100" id="addStavka">Dodaj stavku</button>
+                </div>
+            </div>
+            <div class="row mb-3" name="additionalItems" id="items">
+
+            </div>
+            <div class="row mb-3">
+                <div class="col col-8">
+                    <input type="number" class="form-control" disabled id="priceTotal" name="priceTotal" placeholder="Ukupna cena" aria-label="Ukupna cena" required>
+                </div>
+                <div class="col col-2">
+                    <div id="type" class="form-check">
+                        <input class="form-check-input" type="radio" name="type" value="in" id="in">
+                        <label class="form-check-label" for="in">
+                        Ulazna faktura
+                        </label>
+                    </div>
+                </div>
+                <div class="col col-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="type" value="out" id="out" checked>
+                        <label class="form-check-label" for="out">
+                        Izlazna faktura
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <button type="submit" class="btn btn-primary w-100" id="addStavka">Dodaj novu fakturu</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script>
+
+    </script>
+</body>
+</html>

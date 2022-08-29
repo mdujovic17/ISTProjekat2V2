@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pocetna</title>
+
+    <!-- Bootstrap 5.2.0 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.css" rel="stylesheet" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.js" crossorigin="anonymous"></script>
+   
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.2/css/all.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand text-light" href="/">IST Projekat 2 (v2)</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div class="navbar-nav">
+                    <a class="nav-link text-light active" aria-current="page" href="/">Početna</a>
+                    <a class="nav-link text-light" aria-current="page" href="/preduzeca">Preduzeca</a>
+                    <a class="nav-link text-light" aria-current="page" href="/stavke">Stavke</a>
+                    <a class="nav-link text-light" aria-current="page" href="/bilans">Pregled bilansa</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="display-1 text-center my-auto p-5">Novo preduzece</div>
+
+    <div class="container my-auto mt-5">
+        <form action="/preduzeca/add" method="post">
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="name">Ime</label>
+                    <input type="text" class="form-control" id="name" name="name" placeholder="Petar" aria-label="Ime" required>
+                </div>
+                <div class="col">
+                    <label for="lastName">Prezime</label>
+                    <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Petrovic" aria-label="Prezime" required>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="phone">Broj telefona</label>
+                    <input type="text" class="form-control" id="phone" name="phone" placeholder="+381601234567" aria-label="Telefon" required>
+                </div>
+                <div class="col">
+                    <label for="email">E-mail adresa</label>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="petarp@email.com" aria-label="E-mail" required>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="companyName">Naziv preduzeca</label>
+                    <input type="text" class="form-control" id="companyName" name="companyName" placeholder="Naziv preduzeca" aria-label="Naziv preduzeca" required>
+                </div>
+                <div class="col">
+                    <label for="companyAddress">Adresa preduzeca</label>
+                    <input type="text" class="form-control" id="companyAddress" name="companyAddress" placeholder="Adresa preduzeca" aria-label="Adresa preduzeca" required>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="vat">PIB</label>
+                    <input type="text" class="form-control" id="vat" name="vat" placeholder="012345678" aria-label="PIB" required>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <button type="submit" class="btn btn-primary w-100" id="addPreduzece">Dodaj novo preduzece</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

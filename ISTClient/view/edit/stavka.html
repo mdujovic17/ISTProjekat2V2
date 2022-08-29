@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pocetna</title>
+
+    <!-- Bootstrap 5.2.0 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.css" rel="stylesheet" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.js" crossorigin="anonymous"></script>
+   
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.2/css/all.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand text-light" href="/">IST Projekat 2 (v2)</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div class="navbar-nav">
+                    <a class="nav-link text-light active" aria-current="page" href="/">Početna</a>
+                    <a class="nav-link text-light" aria-current="page" href="/preduzeca">Preduzeca</a>
+                    <a class="nav-link text-light" aria-current="page" href="/stavke">Stavke</a>
+                    <a class="nav-link text-light" aria-current="page" href="/bilans">Pregled bilansa</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="display-1 text-center my-auto p-5">Nova faktura</div>
+
+    <div class="container my-auto mt-5">
+        <form action="/stavke/add" method="post">
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="name">Naziv</label>
+                    <input type="text" class="form-control" id="name" name="name" placeholder="Stavka" aria-label="Naziv" required>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <label for="pricePerUnit">Cena po kolicini</label>
+                    <input type="text" class="form-control" id="pricePerUnit" name="pricePerUnit" placeholder="+381601234567" aria-label="350" min="1" max="10000000" required>
+                </div>
+                <div class="col">
+                    <label for="unitOfMeasurement">Jedinica mere</label>
+                    <input type="text" class="form-control" id="unitOfMeasurement" name="unitOfMeasurement" placeholder="m^3" aria-label="Jedinica mere" required>
+                </div>
+                <div class="col">
+                    <label for="amount">Kolicina</label>
+                    <input type="number" class="form-control" id="amount" name="amount" placeholder="150.55" aria-label="Kolicina" min="1" max="100000" required>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col">
+                    <button type="submit" class="btn btn-primary w-100" id="addStavka">Dodaj novu stavku</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
