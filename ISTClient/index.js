@@ -62,6 +62,42 @@ app.get('/preduzeca/:pageNumber?/:pageSize?', async (req, res) => {
         console.error(error);
     });
 });
+app.get('/stavke/:pageNumber?/:pageSize?', async (req, res) => {
+    if (!req.query.pageNumber && !req.query.pageSize) {
+        req.query.pageNumber = 1;
+        req.query.pageSize = 10;
+    }
+    let options = {
+        method: "GET",
+        url: `http://localhost:${port}/api/Stavka/get/stavka?PageNumber=${req.query["pageNumber"]}&PageSize=${req.query["pageSize"]}`,
+        httpsAgent: agent
+    };
+    //console.log(options.url);
+    //console.log(req.query);
+    axios_1.default.request(options).then((response) => {
+        //console.log(response.data)
+        let view = ``;
+        if (response.data != null) {
+            response.data.data.forEach((element) => {
+                view +=
+                    `<tr>
+                    <th scope="row">${element.id}</th>
+                    <td>${element.name}</td>
+                    <td>${element.pricePerUnit}</td>
+                    <td>${element.unitOfMeasurement}</td>
+                    <td colspan="2">${element.amount}</td>
+                
+                    <td><a class="text-warning" href="/editStavka/${element.id}"><i class="fa fa-pen"></i></a></td>
+                    <td><a class="text-danger" href="/deleteStavka/${element.id}"><i class="fa fa-trash"></i></a></td>
+                </tr>`;
+            });
+            res.send(getView("stavke").replace("##TABLEDATA", view));
+        }
+        ;
+    }).catch(function (error) {
+        console.error(error);
+    });
+});
 app.get("/addPreduzece", async (request, response) => {
     response.send(getView("add/preduzece"));
 });
@@ -127,6 +163,39 @@ app.get("/addFaktura", async (request, response) => {
         stavkeStr += `<option value="${s.id}">${s.name} (${s.pricePerUnit} po ${s.unitOfMeasurement})</option>`;
     });
     view = view.replaceAll("##COMPANIES", preduzecaStr).replaceAll("##ITEMS", stavkeStr);
+    response.send(view);
+});
+app.get("/bilans", async (request, response) => {
+    let view = getView("bilans");
+    let optionsPreduzeca = {
+        method: "GET",
+        url: `http://localhost:${port}/api/Preduzece/get/preduzece/all`,
+        httpsAgent: agent
+    };
+    let preduzeca = new Array();
+    axios_1.default.request(optionsPreduzeca).then(async (res) => {
+        console.log(res.data.data);
+        for (let i = 0; i < res.data.data.length; i++) {
+            preduzeca.push({
+                id: res.data.data[i].id,
+                name: res.data.data[i].name,
+                lastName: res.data.data[i].lastName,
+                phoneNumber: res.data.data[i].phoneNumber,
+                email: res.data.data[i].email,
+                companyAddress: res.data.data[i].companyAddress,
+                companyName: res.data.data[i].companyName,
+                vat: res.data.data[i].vat
+            });
+        }
+    }).catch(err => {
+        console.log(err);
+    });
+    await delay(500);
+    let preduzecaStr = ``;
+    preduzeca.forEach(p => {
+        preduzecaStr += `<option value="${p.id}">${p.companyName} ${p.vat}</option>`;
+    });
+    view = view.replaceAll("##COMPANIES", preduzecaStr);
     response.send(view);
 });
 //POST Methods
@@ -274,5 +343,14 @@ app.put("/editFaktura/:id", async (request, response) => {
 app.get("/deletePreduzece/:id", (request, response) => {
     axios_1.default.delete(`http://localhost:${port}/api/Preduzece/delete/preduzece/${request.params["id"]}`);
     response.redirect("/preduzeca?pageNumber=1&pageSize=10");
+});
+app.get("/deleteStavka/:id", (request, response) => {
+    axios_1.default.delete(`http://localhost:${port}/api/Stavka/delete/stavka/${request.params["id"]}`);
+    response.redirect("/stavke?pageNumber=1&pageSize=10");
+});
+app.get("/deleteFaktura/:id", (request, response) => {
+    axios_1.default.delete(`http://localhost:${port}/api/Faktura/delete/faktura/${request.params["id"]}`);
+    response.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
+    response.redirect("back");
 });
 app.listen(client_port, () => { console.log(`Client started on port ${client_port}`); });

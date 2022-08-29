@@ -100,6 +100,46 @@ app.get('/preduzeca/:pageNumber?/:pageSize?', async (req: Request, res: Response
     });
 });
 
+app.get('/stavke/:pageNumber?/:pageSize?', async (req: Request, res: Response) => {
+    
+    if (!req.query.pageNumber && !req.query.pageSize) {
+        (req.query.pageNumber as unknown as Number) = 1;
+        (req.query.pageSize as unknown as Number) = 10;
+    }
+    
+    let options = {
+        method: "GET",
+        url: `http://localhost:${port}/api/Stavka/get/stavka?PageNumber=${req.query["pageNumber"]}&PageSize=${req.query["pageSize"]}`,
+        httpsAgent: agent
+    }
+
+    //console.log(options.url);
+    //console.log(req.query);
+
+    axios.request(options).then((response) => {
+        //console.log(response.data)
+        let view = ``;
+        if (response.data != null) {
+            response.data.data.forEach((element: Stavka) => {
+                view += 
+                `<tr>
+                    <th scope="row">${element.id}</th>
+                    <td>${element.name}</td>
+                    <td>${element.pricePerUnit}</td>
+                    <td>${element.unitOfMeasurement}</td>
+                    <td colspan="2">${element.amount}</td>
+                
+                    <td><a class="text-warning" href="/editStavka/${element.id}"><i class="fa fa-pen"></i></a></td>
+                    <td><a class="text-danger" href="/deleteStavka/${element.id}"><i class="fa fa-trash"></i></a></td>
+                </tr>`;
+            });
+            res.send(getView("stavke").replace("##TABLEDATA", view));
+        };
+    }).catch(function (error) {
+        console.error(error);
+    });
+});
+
 app.get("/addPreduzece", async (request: Request, response: Response) => {
     response.send(getView("add/preduzece"));
 });
@@ -180,6 +220,46 @@ app.get("/addFaktura", async (request: Request, response: Response) => {
     });
 
     view = view.replaceAll("##COMPANIES", preduzecaStr).replaceAll("##ITEMS", stavkeStr);
+
+    response.send(view);
+});
+
+app.get("/bilans", async (request: Request, response: Response) => {
+    let view = getView("bilans");
+    let optionsPreduzeca = {
+        method: "GET",
+        url: `http://localhost:${port}/api/Preduzece/get/preduzece/all`,
+        httpsAgent: agent
+    };
+
+    let preduzeca: Array<Preduzece> = new Array<Preduzece>();
+
+    axios.request(optionsPreduzeca).then(async (res) => {
+        console.log(res.data.data)
+        for (let i = 0; i < res.data.data.length; i++) {
+            preduzeca.push({
+                id: res.data.data[i].id,
+                name: res.data.data[i].name,
+                lastName: res.data.data[i].lastName,
+                phoneNumber: res.data.data[i].phoneNumber,
+                email: res.data.data[i].email,
+                companyAddress: res.data.data[i].companyAddress,
+                companyName: res.data.data[i].companyName,
+                vat: res.data.data[i].vat
+            });
+        }
+    }).catch(err => {
+        console.log(err);
+    });
+
+    await delay(500);
+
+    let preduzecaStr = ``;
+    preduzeca.forEach(p => {
+        preduzecaStr += `<option value="${p.id}">${p.companyName} ${p.vat}</option>`
+    });
+
+    view = view.replaceAll("##COMPANIES", preduzecaStr);
 
     response.send(view);
 });
