@@ -321,15 +321,17 @@ app.post("/addFaktura", async (request: Request, response: Response) => {
 
     }
 
-    let optionsStavke = {
-        method: "GET",
-        url: `http://localhost:${port}/api/Stavka/get/stavka/all`,
-        httpsAgent: agent
+    // let optionsStavke = {
+    //     method: "GET",
+    //     url: `http://localhost:${port}/api/Stavka/get/stavka/all`,
+    //     httpsAgent: agent
 
-    }
+    // }
 
     let preduzeca: Array<Preduzece> = new Array<Preduzece>();
-    let stavke: Array<Stavka> = new Array<Stavka>();
+
+    //let stavke: Array<Stavka> = new Array<Stavka>();
+    
     let today = new Date();
     axios.request(optionsPreduzeca).then(async (res) => {
         console.log(res.data.data)
@@ -349,20 +351,20 @@ app.post("/addFaktura", async (request: Request, response: Response) => {
         console.log(err);
     });
 
-    axios.request(optionsStavke).then(async (res) => {
-        console.log(res.data.data)
-        for (let i = 0; i < res.data.data.length; i++) {
-            stavke.push({
-                id: res.data.data[i].id,
-                name: res.data.data[i].name,
-                pricePerUnit: res.data.data[i].pricePerUnit,
-                unitOfMeasurement: res.data.data[i].unitOfMeasurement,
-                amount: res.data.data[i].amount
-            });
-        }
-    }).catch(err => {
-        console.log(err);
-    });
+    // axios.request(optionsStavke).then(async (res) => {
+    //     console.log(res.data.data)
+    //     for (let i = 0; i < res.data.data.length; i++) {
+    //         stavke.push({
+    //             id: res.data.data[i].id,
+    //             name: res.data.data[i].name,
+    //             pricePerUnit: res.data.data[i].pricePerUnit,
+    //             unitOfMeasurement: res.data.data[i].unitOfMeasurement,
+    //             amount: res.data.data[i].amount
+    //         });
+    //     }
+    // }).catch(err => {
+    //     console.log(err);
+    // });
 
     await delay(500);
 
@@ -372,20 +374,20 @@ app.post("/addFaktura", async (request: Request, response: Response) => {
     let destinationCompany = preduzeca.find(p => p.id === parseInt(request.body.destinationCompanyVAT));
     let originCompany = preduzeca.find(p => p.id === parseInt(request.body.originCompanyVAT));
 
-    let stavke2: Array<Stavka> = new Array<Stavka>();
+    let stavke2: Array<Number> = new Array<Number>();
 
     //console.log(destinationCompany);
     //console.log(originCompany);
 
     //console.log(request.body);
 
-    let prvaStavka = stavke.find(s => s.id === parseInt(request.body.item)) as Stavka;
+    //let prvaStavka = stavke.find(s => s.id === parseInt(request.body.item));
 
-    stavke2.push(prvaStavka);
+    stavke2.push(parseInt(request.body.item));
 
     for (let i = 0; i < request.body.counter; i++) {
-        let stavka = stavke.find(s => s.id === parseInt(request.body[`item-${i}`])) as Stavka;
-        stavke2.push(stavka);
+        //let stavka = stavke.find(s => s.id === parseInt(request.body[`item-${i}`])) as Stavka;
+        stavke2.push(parseInt(request.body[`item-${i}`]));
     }
 
     let deadline = new Date(Date.parse(request.body.paymentDeadline));

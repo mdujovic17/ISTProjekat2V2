@@ -9,7 +9,7 @@
         public string originCompanyVAT { get; set; }
         public DateTime dateOfCreating { get; set; }
         public DateTime paymentDeadline { get; set; }
-        public List<Stavka> items { get; set; }
+        public List<int> items { get; set; }
         public float priceTotal { get; set; }
         public bool type { get; set; }
     }

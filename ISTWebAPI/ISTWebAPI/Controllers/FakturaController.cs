@@ -58,7 +58,15 @@ namespace ISTWebAPI.Controllers
                     id = Faktura.fakture.OrderByDescending(f => f.id).First().id + 1;
                 }
                 float sum = 0;
-                foreach(Stavka s in faktura.items)
+
+                List<Stavka> stavke = new List<Stavka>();
+
+                for (int i = 0; i < faktura.items.Count; i++)
+                {
+                    stavke.Add(Stavka.stavke.FirstOrDefault(s => s.id == faktura.items[i]));
+                }
+
+                foreach (Stavka s in stavke)
                 {
                     sum += s.pricePerUnit * s.amount;
                 }
