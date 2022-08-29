@@ -16,9 +16,9 @@ namespace ISTWebAPI.Controllers
         {
             public float SumIn { get; internal set; }
             public float SumOut { get; internal set; }
+            public float bilans { get; internal set; }
             public int In { get; internal set; }
             public int Out { get; internal set; }
-
         }
 
         private readonly ILogger<PreduzeceController>logger;
@@ -97,7 +97,7 @@ namespace ISTWebAPI.Controllers
                     }
                 }
 
-                Bilans bilans = new Bilans { In = ulazneFakture, Out = izlazneFakture, SumIn = sumIn, SumOut = sumOut };
+                Bilans bilans = new Bilans { In = ulazneFakture, Out = izlazneFakture, SumIn = sumIn, SumOut = sumOut, bilans=(sumIn-sumOut) };
 
                 return Ok(new Response<Bilans>(bilans));
             }
