@@ -34,7 +34,12 @@
     <div class="display-1 text-center my-auto p-5">Nova faktura</div>
 
     <div class="container my-auto mt-5">
-        <form action="/fakture/add" method="post">
+        <form action="/editFaktura" method="post">
+            <div class="row mb-3" hidden>
+                <div class="col">
+                    <input type="number" id="id" name="id" required>
+                </div>
+            </div>
             <div class="row mb-3">
                 <div class="col">
                     <label for="destinationCompanyVAT">Preduzece kome je namenjena fakutra</label>
@@ -94,13 +99,45 @@
             </div>
             <div class="row mb-3">
                 <div class="col">
+                    <input type="number" class="form-control" id="counter" name="counter" value="" hidden>
                     <button type="submit" class="btn btn-primary w-100" id="addStavka">Dodaj novu fakturu</button>
                 </div>
             </div>
         </form>
     </div>
     <script>
+        let counter = 0;
+        function addNewItem() {
+            let items = document.getElementById("items");
+            let element = document.createElement("div");
+            element.innerHTML = `
+            <div class="col mb-3" id="new-item-${counter}">
+                <label for="item-${counter}">Dodatna stavka ${counter + 1}</label>
+                <select class="form-select mb-3" name="item-${counter}" id="item-${counter}">
+                    <option value="" selected disabled>Odaberite stavku...</option>
+                    ##ITEMS
+                </select>
+                <button type="button" class="btn btn-secondary w-100 mb-3" onclick="removeNewItem(${counter})">Ukloni stavku ${counter + 1}</button>
+            </div>
+            `;
+            
+            items.appendChild(element);
 
+            counter++;
+
+            let c = document.getElementById("counter");
+            c.value = counter;
+        }
+
+        function removeNewItem(id) {
+            document.getElementById(`new-item-${id}`).remove();
+
+            let c = document.getElementById("counter");
+
+            counter--;
+
+            c.value = counter;
+        }
     </script>
 </body>
 </html>

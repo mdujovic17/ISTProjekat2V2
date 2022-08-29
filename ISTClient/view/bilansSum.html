@@ -31,24 +31,22 @@
         </div>
     </nav>
 
-    <div class="display-1 text-center my-auto p-5">Odaberite preduzece</div>
+    <div class="display-1 text-center my-auto p-5">Bilans preduzeca "##NAME"</div>
 
     <div class="container text-center my-auto mt-5">
-       <form action="/bilansGet" method="get">
         <div class="row mb-3">
-            <div class="col">
-                <select class="form-select" name="company" id="company">
-                    <option value="" selected disabled>Odaberite preduzece...</option>
-                    ##COMPANIES
-                </select>
-            </div>
+            <table class="table table-stripped mt-3 mb-3">
+                <thead>
+                    <tr>
+                        <th scope="col" colspan="1">Stavka</th>
+                        <th scope="col" colspan="1">Vrednost</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ##TABLEDATA
+                </tbody>
+            </table>
         </div>
-        <div class="row justify-content-center mb-3">
-            <div class="col">
-                <button type="submit" class="btn btn-primary">Prikazi bilans odabranog preduzeca</button>
-            </div>
-        </div>
-       </form>
     </div>
 </body>
 </html>

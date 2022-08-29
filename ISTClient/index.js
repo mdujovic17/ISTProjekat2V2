@@ -21,10 +21,11 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 let getView = (view) => {
     return (0, fs_1.readFileSync)(path_1.default.join(`${__dirname}/view/${view}.html`), "utf-8");
 };
-//GET Methods
+/*GET Methods*/
 app.get('/', (req, res) => {
     res.send(getView("index"));
 });
+//Stranicenje preduzeca
 app.get('/preduzeca/:pageNumber?/:pageSize?', async (req, res) => {
     if (!req.query.pageNumber && !req.query.pageSize) {
         req.query.pageNumber = 1;
@@ -32,7 +33,7 @@ app.get('/preduzeca/:pageNumber?/:pageSize?', async (req, res) => {
     }
     let options = {
         method: "GET",
-        url: `http://localhost:${port}/api/Preduzece/get/preduzece?PageNumber=${req.query["pageNumber"]}&PageSize=${req.query["pageSize"]}`,
+        url: `http://localhost:${port}/api/Preduzece/get?PageNumber=${req.query["pageNumber"]}&PageSize=${req.query["pageSize"]}`,
         httpsAgent: agent
     };
     //console.log(options.url);
@@ -62,6 +63,44 @@ app.get('/preduzeca/:pageNumber?/:pageSize?', async (req, res) => {
         console.error(error);
     });
 });
+//Pretraga preduzeca sa stranicenjem
+app.get('/searchPreduzeca/:query?/:pageNumber?/:pageSize?', async (req, res) => {
+    if (!req.query.pageNumber && !req.query.pageSize) {
+        req.query.pageNumber = 1;
+        req.query.pageSize = 10;
+    }
+    let options = {
+        method: "GET",
+        url: `http://localhost:${port}/api/Preduzece/search?query=${req.query["query"]}&PageNumber=${req.query["pageNumber"]}&PageSize=${req.query["pageSize"]}`,
+        httpsAgent: agent
+    };
+    console.log(options.url);
+    console.log(req.query);
+    axios_1.default.request(options).then((response) => {
+        let view = ``;
+        if (response.data != null) {
+            response.data.data.forEach((element) => {
+                view +=
+                    `<tr>
+                    <th scope="row">${element.id}</th>
+                    <td>${element.name} ${element.lastName}</td>
+                    <td>${element.email}</td>
+                    <td>${element.companyName}</td>
+                    <td colspan="2">${element.vat}</td>
+                
+                    <td><a class="text-info" href="/detailsPreduzece/${element.id}"><i class="fa fa-circle-info"></i></a></td>
+                    <td><a class="text-warning" href="/editPreduzece/${element.id}"><i class="fa fa-pen"></i></a></td>
+                    <td><a class="text-danger" href="/deletePreduzece/${element.id}"><i class="fa fa-trash"></i></a></td>
+                </tr>`;
+            });
+            res.send(getView("preduzeca").replace("##TABLEDATA", view));
+        }
+        ;
+    }).catch(function (error) {
+        console.error(error);
+    });
+});
+//Stranicenje stavki
 app.get('/stavke/:pageNumber?/:pageSize?', async (req, res) => {
     if (!req.query.pageNumber && !req.query.pageSize) {
         req.query.pageNumber = 1;
@@ -69,7 +108,7 @@ app.get('/stavke/:pageNumber?/:pageSize?', async (req, res) => {
     }
     let options = {
         method: "GET",
-        url: `http://localhost:${port}/api/Stavka/get/stavka?PageNumber=${req.query["pageNumber"]}&PageSize=${req.query["pageSize"]}`,
+        url: `http://localhost:${port}/api/Stavka/get?PageNumber=${req.query["pageNumber"]}&PageSize=${req.query["pageSize"]}`,
         httpsAgent: agent
     };
     //console.log(options.url);
@@ -98,6 +137,7 @@ app.get('/stavke/:pageNumber?/:pageSize?', async (req, res) => {
         console.error(error);
     });
 });
+// DODAVANJE
 app.get("/addPreduzece", async (request, response) => {
     response.send(getView("add/preduzece"));
 });
@@ -108,12 +148,12 @@ app.get("/addStavka", async (request, response) => {
 app.get("/addFaktura", async (request, response) => {
     let optionsPreduzeca = {
         method: "GET",
-        url: `http://localhost:${port}/api/Preduzece/get/preduzece/all`,
+        url: `http://localhost:${port}/api/Preduzece/get/all`,
         httpsAgent: agent
     };
     let optionsStavke = {
         method: "GET",
-        url: `http://localhost:${port}/api/Stavka/get/stavka/all`,
+        url: `http://localhost:${port}/api/Stavka/get/all`,
         httpsAgent: agent
     };
     let preduzeca = new Array();
@@ -165,11 +205,12 @@ app.get("/addFaktura", async (request, response) => {
     view = view.replaceAll("##COMPANIES", preduzecaStr).replaceAll("##ITEMS", stavkeStr);
     response.send(view);
 });
+//BILANS
 app.get("/bilans", async (request, response) => {
     let view = getView("bilans");
     let optionsPreduzeca = {
         method: "GET",
-        url: `http://localhost:${port}/api/Preduzece/get/preduzece/all`,
+        url: `http://localhost:${port}/api/Preduzece/get/all`,
         httpsAgent: agent
     };
     let preduzeca = new Array();
@@ -198,11 +239,101 @@ app.get("/bilans", async (request, response) => {
     view = view.replaceAll("##COMPANIES", preduzecaStr);
     response.send(view);
 });
-//POST Methods
+app.get("/bilansGet", async (request, response) => {
+    let view = getView("bilansSum");
+    let optionsPreduzeca = {
+        method: "GET",
+        url: `http://localhost:${port}/api/Preduzece/get/${request.query["company"]}`,
+        httpsAgent: agent
+    };
+    let optionsBilans = {
+        method: "GET",
+        url: `http://localhost:${port}/api/Preduzece/bilans/${request.query["company"]}`,
+        httpsAgent: agent
+    };
+    let preduzeceStr = ``;
+    axios_1.default.request(optionsPreduzeca).then(async (res) => {
+        console.log(res.data.data);
+        preduzeceStr +=
+            `
+        <tr>
+            <td>PIB</td>
+            <td>${res.data.data.vat}</td>
+        </tr>
+        `;
+        view = view.replaceAll("##NAME", res.data.data.companyName);
+    }).catch(err => {
+        console.log(err);
+    });
+    axios_1.default.request(optionsBilans).then(async (res) => {
+        console.log(res.data.data);
+        preduzeceStr += `
+        
+        <tr>
+            <td>Broj ulaznih faktura</td>
+            <td>${res.data.data.In}</td>
+        </tr>
+        <tr>
+            <td>Broj izlaznih faktura</td>
+            <td>${res.data.data.Out}</td>
+        </tr>
+        <tr>
+            <td>Suma ulaznih faktura</td>
+            <td class="text-success">${res.data.data.sumIn}</td>
+        </tr>
+        <tr>
+            <td>Broj izlaznih faktura</td>
+            <td class="text-danger">${res.data.data.sumOut}</td>
+        </tr>
+        <tr>
+            <td>Bilans</td>
+            <td class="text-warning">${res.data.data.bilans}</td>
+        </tr>
+        `;
+    });
+    await delay(500);
+    view = view.replaceAll("##TABLEDATA", preduzeceStr);
+    response.send(view);
+});
+//DETALJI
+app.get("/detailsPreduzece/:id", async (request, response) => {
+    let view = getView("details/details");
+    let options = {
+        method: "GET",
+        url: `http://localhost:${port}/api/Preduzece/get/${request.params["id"]}`,
+        httpsAgent: agent
+    };
+    console.log(request.query);
+    console.log(request.params);
+    let detailsStr = ``;
+    axios_1.default.request(options).then((res) => {
+        console.log(res.data.data);
+        detailsStr = `
+        <tr><td>Ime i prezime</td><td>${res.data.data.name} ${res.data.data.lastName}</td></tr>
+        <tr><td>Telefon</td><td>${res.data.data.phoneNumber}</td></tr>
+        <tr><td>Adresa</td><td>${res.data.data.companyAddress}</td></tr>
+        <tr><td>Naziv preduzeca</td><td>${res.data.data.companyName}</td></tr>
+        <tr><td>PIB</td><td>${res.data.data.vat}</td></tr>
+        `;
+        view = view
+            .replaceAll("##NAME", res.data.data.companyName)
+            .replaceAll("##EDIT", `/editPreduzece/${res.data.data.id}`)
+            .replaceAll("##DELETE", `/deletePreduzece/${res.data.data.id}`);
+    }).catch(err => {
+        console.log(err);
+    });
+    await delay(500);
+    view = view.replaceAll("##TABLEDATA", detailsStr);
+    response.send(view);
+});
+app.get("detailsStavka", async (request, response) => {
+});
+/*POST Methods*/
+//DODAVANJE
 app.post("/addPreduzece", (request, response) => {
     let options = {
         method: "POST",
-        url: `http://localhost:${port}/api/Preduzece/add/preduzece`,
+        url: `http://localhost:${port}/api/Preduzece/add`,
         httpsAgent: agent,
         data: {
             id: 0,
@@ -225,7 +356,7 @@ app.post("/addPreduzece", (request, response) => {
 app.post("/addStavka", (request, response) => {
     let options = {
         method: "POST",
-        url: `http://localhost:${port}/api/Stavka/add/stavka`,
+        url: `http://localhost:${port}/api/Stavka/add`,
         httpsAgent: agent,
         data: {
             id: 0,
@@ -244,16 +375,16 @@ app.post("/addStavka", (request, response) => {
 app.post("/addFaktura", async (request, response) => {
     let optionsPreduzeca = {
         method: "GET",
-        url: `http://localhost:${port}/api/Preduzece/get/preduzece/all`,
+        url: `http://localhost:${port}/api/Preduzece/get/all`,
         httpsAgent: agent
     };
-    let optionsStavke = {
-        method: "GET",
-        url: `http://localhost:${port}/api/Stavka/get/stavka/all`,
-        httpsAgent: agent
-    };
+    // let optionsStavke = {
+    //     method: "GET",
+    //     url: `http://localhost:${port}/api/Stavka/get/all`,
+    //     httpsAgent: agent
+    // }
     let preduzeca = new Array();
-    let stavke = new Array();
+    //let stavke: Array<Stavka> = new Array<Stavka>();
     let today = new Date();
     axios_1.default.request(optionsPreduzeca).then(async (res) => {
         console.log(res.data.data);
@@ -272,20 +403,20 @@ app.post("/addFaktura", async (request, response) => {
     }).catch(err => {
         console.log(err);
     });
-    axios_1.default.request(optionsStavke).then(async (res) => {
-        console.log(res.data.data);
-        for (let i = 0; i < res.data.data.length; i++) {
-            stavke.push({
-                id: res.data.data[i].id,
-                name: res.data.data[i].name,
-                pricePerUnit: res.data.data[i].pricePerUnit,
-                unitOfMeasurement: res.data.data[i].unitOfMeasurement,
-                amount: res.data.data[i].amount
-            });
-        }
-    }).catch(err => {
-        console.log(err);
-    });
+    // axios.request(optionsStavke).then(async (res) => {
+    //     console.log(res.data.data)
+    //     for (let i = 0; i < res.data.data.length; i++) {
+    //         stavke.push({
+    //             id: res.data.data[i].id,
+    //             name: res.data.data[i].name,
+    //             pricePerUnit: res.data.data[i].pricePerUnit,
+    //             unitOfMeasurement: res.data.data[i].unitOfMeasurement,
+    //             amount: res.data.data[i].amount
+    //         });
+    //     }
+    // }).catch(err => {
+    //     console.log(err);
+    // });
     await delay(500);
     // console.log(preduzeca);
     // console.log(stavke);
@@ -295,17 +426,17 @@ app.post("/addFaktura", async (request, response) => {
     //console.log(destinationCompany);
     //console.log(originCompany);
     //console.log(request.body);
-    let prvaStavka = stavke.find(s => s.id === parseInt(request.body.item));
-    stavke2.push(prvaStavka);
+    //let prvaStavka = stavke.find(s => s.id === parseInt(request.body.item));
+    stavke2.push(parseInt(request.body.item));
     for (let i = 0; i < request.body.counter; i++) {
-        let stavka = stavke.find(s => s.id === parseInt(request.body[`item-${i}`]));
-        stavke2.push(stavka);
+        //let stavka = stavke.find(s => s.id === parseInt(request.body[`item-${i}`])) as Stavka;
+        stavke2.push(parseInt(request.body[`item-${i}`]));
     }
     let deadline = new Date(Date.parse(request.body.paymentDeadline));
     let type = request.body.type === "in";
     let options = {
         method: "POST",
-        url: `http://localhost:${port}/api/Faktura/add/faktura`,
+        url: `http://localhost:${port}/api/Faktura/add`,
         httpsAgent: agent,
         data: {
             id: 0,
@@ -326,7 +457,8 @@ app.post("/addFaktura", async (request, response) => {
     });
     response.redirect("/preduzeca?pageNumber=1&pageSize=10");
 });
-//PUT Methods
+/*PUT Methods*/
+//IZMENE
 app.put("/editPreduzece/:id", async (request, response) => {
     let view = getView("edit/preduzece");
     response.send(view);
@@ -339,17 +471,18 @@ app.put("/editFaktura/:id", async (request, response) => {
     let view = getView("edit/faktura");
     response.send(view);
 });
-//DELETE Methods
+/*DELETE Methods*/
+//BRISANJE
 app.get("/deletePreduzece/:id", (request, response) => {
-    axios_1.default.delete(`http://localhost:${port}/api/Preduzece/delete/preduzece/${request.params["id"]}`);
+    axios_1.default.delete(`http://localhost:${port}/api/Preduzece/delete/${request.params["id"]}`);
     response.redirect("/preduzeca?pageNumber=1&pageSize=10");
 });
 app.get("/deleteStavka/:id", (request, response) => {
-    axios_1.default.delete(`http://localhost:${port}/api/Stavka/delete/stavka/${request.params["id"]}`);
+    axios_1.default.delete(`http://localhost:${port}/api/Stavka/delete/${request.params["id"]}`);
     response.redirect("/stavke?pageNumber=1&pageSize=10");
 });
 app.get("/deleteFaktura/:id", (request, response) => {
-    axios_1.default.delete(`http://localhost:${port}/api/Faktura/delete/faktura/${request.params["id"]}`);
+    axios_1.default.delete(`http://localhost:${port}/api/Faktura/delete/${request.params["id"]}`);
     response.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
     response.redirect("back");
 });

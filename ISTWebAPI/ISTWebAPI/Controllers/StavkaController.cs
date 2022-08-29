@@ -19,7 +19,7 @@ namespace ISTWebAPI.Controllers
             this.logger = logger;
         }
 
-        [HttpGet("get/stavka/all")]
+        [HttpGet("get/all")]
         public IActionResult getAll()
         {
             var linq = Stavka.stavke.OrderBy(s => s.name).ThenBy(s => s.pricePerUnit).ToList();
@@ -32,7 +32,7 @@ namespace ISTWebAPI.Controllers
             return NotFound("Lista stavki nije popunjena.");
         }
 
-        [HttpGet("get/stavka")]
+        [HttpGet("get")]
         public IActionResult getAll([FromQuery] PaginationFilter filter)
         {
             var linq = Stavka.stavke.OrderBy(s => s.name).ThenBy(s => s.pricePerUnit).ToList();
@@ -47,7 +47,7 @@ namespace ISTWebAPI.Controllers
             return NotFound("Lista stavki nije popunjena.");
         }
 
-        [HttpGet("get/stavka/{id}")]
+        [HttpGet("get/{id}")]
         public IActionResult getStavka(int id)
         {
             var linq = Stavka.stavke.FirstOrDefault(s => s.id == id);
@@ -62,7 +62,7 @@ namespace ISTWebAPI.Controllers
             }
         }
 
-        [HttpPost("add/stavka")]
+        [HttpPost("add")]
         public IActionResult postStavka([FromBody] Stavka stavka)
         {
             if (ModelState.IsValid)
@@ -92,7 +92,7 @@ namespace ISTWebAPI.Controllers
             }
         }
 
-        [HttpPut("edit/stavka")]
+        [HttpPut("edit")]
         public IActionResult putStavka([FromBody] Stavka stavka)
         {
             var s = Stavka.stavke.FirstOrDefault(s => s.id == stavka.id);
@@ -120,7 +120,7 @@ namespace ISTWebAPI.Controllers
             return Problem();
         }
 
-        [HttpDelete("delete/stavka/{id}")]
+        [HttpDelete("delete/{id}")]
         public IActionResult deleteStavka(int id)
         {
             var linq = Stavka.stavke.FirstOrDefault(s => s.id == id);

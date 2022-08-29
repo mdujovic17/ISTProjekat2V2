@@ -19,7 +19,7 @@ namespace ISTWebAPI.Controllers
             this.logger = logger;
         }
 
-        [HttpGet("get/faktura/all")]
+        [HttpGet("get/all")]
         public IActionResult getAll()
         {
             var linq = Faktura.fakture.OrderBy(f => f.originCompanyVAT).ThenBy(f => f.destinationCompanyVAT).ToList();
@@ -32,7 +32,7 @@ namespace ISTWebAPI.Controllers
             return NotFound("Lista faktura nije popunjena");
         }
 
-        [HttpGet("get/faktura/{companyVAT}")]
+        [HttpGet("get/{companyVAT}")]
         public IActionResult getAll(string companyVAT, [FromQuery] PaginationFilter filter)
         {
             var linq = Faktura.fakture.Where(f => f.originCompanyVAT == companyVAT || f.destinationCompanyVAT == companyVAT).OrderBy(f => f.originCompanyVAT).ThenBy(f => f.destinationCompanyVAT).ToList();
@@ -47,7 +47,22 @@ namespace ISTWebAPI.Controllers
             return NotFound("Lista stavki nije popunjena.");
         }
 
-        [HttpPost("add/faktura")]
+        [HttpGet("search/{total?}/{itemName?}")]
+        public IActionResult search(float? total, string? itemName, [FromQuery] PaginationFilter filter)
+        {
+            
+            var linq = Faktura.fakture.Where(f => f.items.Any(it => Stavka.stavke.Any(s => s.id == it && s.name.Equals(itemName))) || f.priceTotal == total).ToList();
+            var vFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
+            var paged = linq.Skip((vFilter.PageNumber - 1) * vFilter.PageSize).Take(vFilter.PageSize).ToList();
+
+            if (paged != null)
+            {
+                return Ok(new PagedResponse<List<Faktura>>(paged, vFilter.PageNumber, vFilter.PageSize));
+            }
+            return Problem();
+        }
+
+        [HttpPost("add")]
         public IActionResult postFaktura([FromBody] Faktura faktura)
         {
             if (ModelState.IsValid)
@@ -84,7 +99,7 @@ namespace ISTWebAPI.Controllers
             }
         }
 
-        [HttpPut("edit/faktura")]
+        [HttpPut("edit")]
         public IActionResult putFaktura([FromBody] Faktura faktura)
         {
             var f = Faktura.fakture.FirstOrDefault(f => f.id == faktura.id);
@@ -115,7 +130,7 @@ namespace ISTWebAPI.Controllers
             return Problem();
         }
 
-        [HttpDelete("delete/faktura/{id}")]
+        [HttpDelete("delete/{id}")]
         public IActionResult deleteFaktura(int id)
         {
             var linq = Faktura.fakture.FirstOrDefault(f => f.id == id);

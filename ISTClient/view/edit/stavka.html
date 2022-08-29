@@ -34,7 +34,12 @@
     <div class="display-1 text-center my-auto p-5">Nova faktura</div>
 
     <div class="container my-auto mt-5">
-        <form action="/stavke/add" method="post">
+        <form action="/editStavka" method="post">
+            <div class="row mb-3" hidden>
+                <div class="col">
+                    <input type="number" id="id" name="id" required>
+                </div>
+            </div>
             <div class="row mb-3">
                 <div class="col">
                     <label for="name">Naziv</label>

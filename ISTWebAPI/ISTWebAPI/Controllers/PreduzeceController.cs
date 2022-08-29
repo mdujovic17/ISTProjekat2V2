@@ -27,7 +27,7 @@ namespace ISTWebAPI.Controllers
             this.logger = logger;
         }
 
-        [HttpGet("get/preduzece/all")]
+        [HttpGet("get/all")]
         public IActionResult getAll()
         {
             var linq = Preduzece.preduzeca.OrderBy(p => p.vat).ThenBy(p => p.companyName).ToList();
@@ -40,7 +40,7 @@ namespace ISTWebAPI.Controllers
             return NotFound("Lista preduzeca nije popunjena.");
         }
 
-        [HttpGet("get/preduzece")]
+        [HttpGet("get")]
         public IActionResult getAll([FromQuery] PaginationFilter filter)
         {
             var linq = Preduzece.preduzeca.OrderBy(p => p.vat).ThenBy(p => p.companyName);
@@ -51,10 +51,10 @@ namespace ISTWebAPI.Controllers
             {
                 return Ok(new PagedResponse<List<Preduzece>>(pagedLinq, vFilter.PageNumber, vFilter.PageSize));
             }
-            return NotFound("Lista preduzeca nije popunjena.");
+            return Problem("Lista preduzeca nije popunjena.");
         }
 
-        [HttpGet("get/preduzece/{id}")]
+        [HttpGet("get/{id}")]
         public IActionResult getPreduzece(int id)
         {
             var lint = Preduzece.preduzeca.FirstOrDefault(p => p.id == id);
@@ -67,6 +67,19 @@ namespace ISTWebAPI.Controllers
             {
                 return Ok(new Response<Preduzece>(lint));
             }
+        }
+
+        [HttpGet("search")]
+        public IActionResult search([FromQuery] string query, [FromQuery] PaginationFilter filter1)
+        {
+            var vFilter = new PaginationFilter(filter1.PageNumber, filter1.PageSize);
+            var linq = Preduzece.preduzeca.Where(p => p.vat.Contains(query) || p.companyName.Contains(query)).ToList();
+
+            if (linq != null)
+            {
+                return Ok(new PagedResponse<List<Preduzece>>(linq, vFilter.PageNumber, vFilter.PageSize));
+            }
+            return Problem();
         }
 
         [HttpGet("bilans/{id}")]
@@ -104,7 +117,7 @@ namespace ISTWebAPI.Controllers
             return Problem();
         }
 
-        [HttpPost("add/preduzece")]
+        [HttpPost("add")]
         public IActionResult postPreduzece([FromBody] Preduzece preduzece)
         {
             if (ModelState.IsValid)
@@ -139,7 +152,7 @@ namespace ISTWebAPI.Controllers
             }
         }
 
-        [HttpPut("edit/preduzece")]
+        [HttpPut("edit")]
         public IActionResult putPreduzece([FromBody] Preduzece preduzece)
         {
             var p = Preduzece.preduzeca.FirstOrDefault(p => p.id == preduzece.id);
@@ -175,7 +188,7 @@ namespace ISTWebAPI.Controllers
             return Problem("Nepoznata greska");
         }
 
-        [HttpDelete("delete/preduzece/{id}")]
+        [HttpDelete("delete/{id}")]
         public IActionResult deletePreduzece(int id)
         {
             var lint = Preduzece.preduzeca.FirstOrDefault(p => p.id == id);

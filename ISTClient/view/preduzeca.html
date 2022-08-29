@@ -33,7 +33,15 @@
 
     <div class="display-1 text-center my-auto p-5">Preduzeća</div>
 
-    <div class="container text-center my-auto mt-3">
+    <div class="container mb-3">
+        <form action="/searchPreduzeca" method="get">
+            <div class="input-group">
+                <input type="text" class="form-control" name="query" placeholder="Pretraga" aria-label="Pretraga" aria-describedby="button-addon2">
+                <button class="btn btn-outline-secondary" type="submit" id="button-addon2"><i class="fa fa-search"></i></button>
+            </div>
+        </form>
+    </div>
+    <div class="container text-center my-auto">
         <a type="button" class="col mx-1 btn btn-secondary btn-lg w-25" href="/addPreduzece">Novo preduzeće</a>
         <a type="button" class="col mx-1 btn btn-secondary btn-lg w-25" href="/addFaktura">Nova faktura</a>
         <a type="button" class="col mx-1 btn btn-secondary btn-lg w-25" href="/bilans">Pregled bilansa</a>
