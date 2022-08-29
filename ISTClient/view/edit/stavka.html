@@ -37,27 +37,27 @@
         <form action="/editStavka" method="post">
             <div class="row mb-3" hidden>
                 <div class="col">
-                    <input type="number" id="id" name="id" required>
+                    <input type="number" id="id" name="id" value="##ID" required>
                 </div>
             </div>
             <div class="row mb-3">
                 <div class="col">
                     <label for="name">Naziv</label>
-                    <input type="text" class="form-control" id="name" name="name" placeholder="Stavka" aria-label="Naziv" required>
+                    <input type="text" class="form-control" id="name" name="name" placeholder="Stavka" aria-label="Naziv" value="##NAME" required>
                 </div>
             </div>
             <div class="row mb-3">
                 <div class="col">
                     <label for="pricePerUnit">Cena po kolicini</label>
-                    <input type="text" class="form-control" id="pricePerUnit" name="pricePerUnit" placeholder="+381601234567" aria-label="350" min="1" max="10000000" required>
+                    <input type="text" class="form-control" id="pricePerUnit" name="pricePerUnit" placeholder="300.50" aria-label="350" min="1" max="10000000" value="##PRICEPERUNIT" required>
                 </div>
                 <div class="col">
                     <label for="unitOfMeasurement">Jedinica mere</label>
-                    <input type="text" class="form-control" id="unitOfMeasurement" name="unitOfMeasurement" placeholder="m^3" aria-label="Jedinica mere" required>
+                    <input type="text" class="form-control" id="unitOfMeasurement" name="unitOfMeasurement" placeholder="m^3" aria-label="Jedinica mere" value="##UNITOFMEASUREMENT" required>
                 </div>
                 <div class="col">
                     <label for="amount">Kolicina</label>
-                    <input type="number" class="form-control" id="amount" name="amount" placeholder="150.55" aria-label="Kolicina" min="1" max="100000" required>
+                    <input type="number" class="form-control" id="amount" name="amount" placeholder="150.55" aria-label="Kolicina" min="1" max="100000" value="##AMOUNT" required>
                 </div>
             </div>
             <div class="row mb-3">

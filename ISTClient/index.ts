@@ -187,12 +187,10 @@ app.get('/stavke/:pageNumber?/:pageSize?', async (req: Request, res: Response) =
 app.get("/addPreduzece", async (request: Request, response: Response) => {
     response.send(getView("add/preduzece"));
 });
-
 app.get("/addStavka", async (request: Request, response: Response) => {
     let view = getView("add/stavka");
     response.send(view);
 });
-
 app.get("/addFaktura", async (request: Request, response: Response) => {
 
     let optionsPreduzeca = {
@@ -268,6 +266,176 @@ app.get("/addFaktura", async (request: Request, response: Response) => {
     response.send(view);
 });
 
+//IZMENA
+app.get("/editPreduzece/:id", async (request: Request, response: Response) => {
+    let view = getView("edit/preduzece");
+
+    let options = {
+        method: "GET",
+        url: `http://localhost:${port}/api/Preduzece/get/${request.params["id"]}`,
+        httpsAgent: agent
+    };
+
+    axios.request(options).then((res) => {
+        view = view.replace("##ID", res.data.data.id)
+                   .replace("##NAME", res.data.data.name)
+                   .replace("##LASTNAME", res.data.data.lastName)
+                   .replace("##PHONE", res.data.data.phoneNumber)
+                   .replace("##EMAIL", res.data.data.email)
+                   .replace("##COMPANYNAME", res.data.data.companyName)
+                   .replace("##COMPANYADDRESS", res.data.data.companyAddress)
+                   .replace("##VAT", res.data.data.vat);
+    });
+
+    await delay(500);
+
+    response.send(view);
+});
+app.get("/editStavka/:id", async (request: Request, response: Response) => {
+    let view = getView("edit/stavka");
+
+    let options = {
+        method: "GET",
+        url: `http://localhost:${port}/api/Stavka/get/${request.params["id"]}`,
+        httpsAgent: agent
+    };
+
+    axios.request(options).then((res) => {
+        view = view.replace("##ID", res.data.data.id)
+                   .replace("##NAME", res.data.data.name)
+                   .replace("##PRICEPERUNIT", res.data.data.pricePerUnit)
+                   .replace("##UNITOFMEASUREMENT", res.data.data.unitOfMeasurement)
+                   .replace("##AMOUNT", res.data.data.amount);
+    });
+
+    await delay(500);
+
+    response.send(view);
+});
+app.get("/editFaktura/:id", async (request: Request, response: Response) => {
+    let view = getView("edit/faktura");
+
+    let options = {
+        method: "GET",
+        url: `http://localhost:${port}/api/Faktura/get/byId/${request.params["id"]}`,
+        httpsAgent: agent
+    };
+
+    let optionsPreduzeca = {
+        method: "GET",
+        url: `http://localhost:${port}/api/Preduzece/get/all`,
+        httpsAgent: agent
+
+    }
+
+    let optionsStavke = {
+        method: "GET",
+        url: `http://localhost:${port}/api/Stavka/get/all`,
+        httpsAgent: agent
+
+    }
+
+    let preduzeca: Array<Preduzece> = new Array<Preduzece>();
+    let stavke: Array<Stavka> = new Array<Stavka>();
+    let today = new Date();
+
+    axios.request(optionsPreduzeca).then(async (res) => {
+        //console.log(res.data.data)
+        for (let i = 0; i < res.data.data.length; i++) {
+            preduzeca.push({
+                id: res.data.data[i].id,
+                name: res.data.data[i].name,
+                lastName: res.data.data[i].lastName,
+                phoneNumber: res.data.data[i].phoneNumber,
+                email: res.data.data[i].email,
+                companyAddress: res.data.data[i].companyAddress,
+                companyName: res.data.data[i].companyName,
+                vat: res.data.data[i].vat
+            });
+        }
+    }).catch(err => {
+        console.log(err);
+    });
+
+    axios.request(optionsStavke).then(async (res) => {
+        //console.log(res.data.data)
+        for (let i = 0; i < res.data.data.length; i++) {
+            stavke.push({
+                id: res.data.data[i].id,
+                name: res.data.data[i].name,
+                pricePerUnit: res.data.data[i].pricePerUnit,
+                unitOfMeasurement: res.data.data[i].unitOfMeasurement,
+                amount: res.data.data[i].amount
+            });
+        }
+    }).catch(err => {
+        console.log(err);
+    });
+
+    await delay(500);
+
+    let preduzecaDestStr = ``;
+    let preduzecaOrigStr = ``;
+    let stavkaStr = ``;
+    let stavkeList = ``;
+    
+
+    axios.request(options).then((res) => {
+        view = view.replace("##ID", res.data.data.id)
+                   .replace("##DATEOFCREATION", new Date(Date.parse(res.data.data.dateOfCreating)).toLocaleDateString("en-CA"))
+                   .replace("##PAYMENTDEADLINE", new Date(Date.parse(res.data.data.paymentDeadline)).toLocaleDateString("en-CA"));
+
+        preduzeca.forEach(p => {
+            preduzecaDestStr += `<option value="${p.id}" ${(p.vat === res.data.data.destinationCompanyVAT) ? "selected" : ""}>${p.companyName} ${p.vat}</option>`
+            preduzecaOrigStr += `<option value="${p.id}" ${(p.vat === res.data.data.originCompanyVAT) ? "selected" : ""}>${p.companyName} ${p.vat}</option>`
+        });
+
+        stavke.forEach(s => {
+            stavkaStr += `<option value="${s.id}" ${(s.id === res.data.data.items[0])? "selected" : ""}>${s.name} (${s.pricePerUnit} po ${s.unitOfMeasurement})</option>`;
+        });
+
+        let counter = 0;
+        res.data.data.items.forEach((i: number) => {
+            
+            if (i !== 0) {
+                let additionalStr = ``;
+
+                stavke.forEach(s => {
+                    additionalStr += `<option value="${s.id}" ${(s.id === res.data.data.items[i])? "selected" : ""}>${s.name} (${s.pricePerUnit} po ${s.unitOfMeasurement})</option>`;
+                });
+
+                stavkeList += `
+                <div class="col mb-3" id="new-item-${i}">
+                    <label for="item-${i}">Dodatna stavka ${i + 1}</label>
+                    <select class="form-select mb-3" name="item-${i}" id="item-${i}">
+                        <option value="" selected disabled>Odaberite stavku...</option>
+                        ${additionalStr}
+                    </select>
+                    <button type="button" class="btn btn-secondary w-100 mb-3" onclick="removeNewItem(${i})">Ukloni stavku ${counter + 1}</button>
+                </div>`;
+                counter++;
+            }
+        });
+
+        view = view.replace("##COMPANIESDEST", preduzecaDestStr)
+                   .replace("##COMPANIESORIG", preduzecaOrigStr)
+                   .replace("##ITEMS", stavkaStr)
+                   .replace("##ADDITIONALITEMS", stavkeList)
+                   .replace("##COUNTER", "" + counter)
+                   .replace("##PRICETOTAL", "" + res.data.data.priceTotal)
+                   .replace("##CHECKEDIN", res.data.data.type ? "checked" : "")
+                   .replace("##CHECKEDOUT", res.data.data.type ? "" : "checked");
+
+
+    }).catch(err => {
+        console.log(err);
+    });
+
+    await delay(500);
+
+    response.send(view);
+});
+
 //BILANS
 app.get("/bilans", async (request: Request, response: Response) => {
     let view = getView("bilans");
@@ -308,7 +476,6 @@ app.get("/bilans", async (request: Request, response: Response) => {
 
     response.send(view);
 });
-
 app.get("/bilansGet", async (request: Request, response: Response) => {
     let view = getView("bilansSum");
     let optionsPreduzeca = {
@@ -414,7 +581,6 @@ app.get("/detailsPreduzece/:id", async (request: Request, response: Response) =>
 
     response.send(view);
 });
-
 app.get("detailsStavka", async (request: Request, response: Response) => {
     let view = getView("details/details");
 
@@ -479,9 +645,8 @@ app.post("/addPreduzece", (request: Request, response: Response) => {
         console.log(err);
     });
 
-    response.redirect("/preduzeca?pageNumber=1&pageSize=10");
+    response.redirect("/preduzeca");
 });
-
 app.post("/addStavka", (request: Request, response: Response) => {
     let options = {
         method: "POST",
@@ -501,8 +666,9 @@ app.post("/addStavka", (request: Request, response: Response) => {
     }).catch(err => {
         console.log(err);
     });
-});
 
+    response.redirect("/stavke");
+});
 app.post("/addFaktura", async (request: Request, response: Response) => {
     let optionsPreduzeca = {
         method: "GET",
@@ -511,17 +677,7 @@ app.post("/addFaktura", async (request: Request, response: Response) => {
 
     }
 
-    // let optionsStavke = {
-    //     method: "GET",
-    //     url: `http://localhost:${port}/api/Stavka/get/all`,
-    //     httpsAgent: agent
-
-    // }
-
     let preduzeca: Array<Preduzece> = new Array<Preduzece>();
-
-    //let stavke: Array<Stavka> = new Array<Stavka>();
-
     let today = new Date();
     axios.request(optionsPreduzeca).then(async (res) => {
         console.log(res.data.data)
@@ -541,42 +697,16 @@ app.post("/addFaktura", async (request: Request, response: Response) => {
         console.log(err);
     });
 
-    // axios.request(optionsStavke).then(async (res) => {
-    //     console.log(res.data.data)
-    //     for (let i = 0; i < res.data.data.length; i++) {
-    //         stavke.push({
-    //             id: res.data.data[i].id,
-    //             name: res.data.data[i].name,
-    //             pricePerUnit: res.data.data[i].pricePerUnit,
-    //             unitOfMeasurement: res.data.data[i].unitOfMeasurement,
-    //             amount: res.data.data[i].amount
-    //         });
-    //     }
-    // }).catch(err => {
-    //     console.log(err);
-    // });
-
     await delay(500);
-
-    // console.log(preduzeca);
-    // console.log(stavke);
 
     let destinationCompany = preduzeca.find(p => p.id === parseInt(request.body.destinationCompanyVAT));
     let originCompany = preduzeca.find(p => p.id === parseInt(request.body.originCompanyVAT));
 
     let stavke2: Array<Number> = new Array<Number>();
 
-    //console.log(destinationCompany);
-    //console.log(originCompany);
-
-    //console.log(request.body);
-
-    //let prvaStavka = stavke.find(s => s.id === parseInt(request.body.item));
-
     stavke2.push(parseInt(request.body.item));
 
     for (let i = 0; i < request.body.counter; i++) {
-        //let stavka = stavke.find(s => s.id === parseInt(request.body[`item-${i}`])) as Stavka;
         stavke2.push(parseInt(request.body[`item-${i}`]));
     }
 
@@ -599,9 +729,6 @@ app.post("/addFaktura", async (request: Request, response: Response) => {
         }
     };
 
-    //console.log(stavke2);
-    //console.log(options.data);
-
     axios.request(options).then((res) => {
         console.log(res.data);
     }).catch(err => {
@@ -613,22 +740,120 @@ app.post("/addFaktura", async (request: Request, response: Response) => {
 
 /*PUT Methods*/
 //IZMENE
-app.put("/editPreduzece/:id", async (request: Request, response: Response) => {
-    let view = getView("edit/preduzece");
+app.post("/editPreduzece", async (request: Request, response: Response) => {
+    let options = {
+        method: "PUT",
+        url: `http://localhost:${port}/api/Preduzece/edit`,
+        httpsAgent: agent,
+        data: {
+            id: request.body.id,
+            name: request.body.name,
+            lastName: request.body.lastName,
+            phoneNumber: request.body.phone,
+            email: request.body.email,
+            companyAddress: request.body.companyAddress,
+            companyName: request.body.companyName,
+            vat: request.body.vat
+        }
+    };
 
-    response.send(view);
+    axios.request(options).then((res) => {
+        console.log(res.data);
+    }).catch(err => {
+        console.log(err);
+    });
+
+    response.redirect("/preduzeca");
 });
+app.post("/editStavka", async (request: Request, response: Response) => {
+    let options = {
+        method: "PUT",
+        url: `http://localhost:${port}/api/Stavka/edit`,
+        httpsAgent: agent,
+        data: {
+            id: request.body.id,
+            name: request.body.name,
+            pricePerUnit: request.body.pricePerUnit,
+            unitOfMeasurement: request.body.unitOfMeasurement,
+            amount: request.body.amount
+        }
+    };
 
-app.put("/editStavka/:id", async (request: Request, response: Response) => {
-    let view = getView("edit/stavka");
+    axios.request(options).then((res) => {
+        console.log(res.data);
+    }).catch(err => {
+        console.log(err);
+    });
 
-    response.send(view);
+    response.redirect("/stavke");
 });
+app.post("/editFaktura", async (request: Request, response: Response) => {
+    let optionsPreduzeca = {
+        method: "GET",
+        url: `http://localhost:${port}/api/Preduzece/get/all`,
+        httpsAgent: agent
 
-app.put("/editFaktura/:id", async (request: Request, response: Response) => {
-    let view = getView("edit/faktura");
+    }
 
-    response.send(view);
+    let preduzeca: Array<Preduzece> = new Array<Preduzece>();
+
+    axios.request(optionsPreduzeca).then(async (res) => {
+        console.log(res.data.data)
+        for (let i = 0; i < res.data.data.length; i++) {
+            preduzeca.push({
+                id: res.data.data[i].id,
+                name: res.data.data[i].name,
+                lastName: res.data.data[i].lastName,
+                phoneNumber: res.data.data[i].phoneNumber,
+                email: res.data.data[i].email,
+                companyAddress: res.data.data[i].companyAddress,
+                companyName: res.data.data[i].companyName,
+                vat: res.data.data[i].vat
+            });
+        }
+    }).catch(err => {
+        console.log(err);
+    });
+
+    await delay(500);
+
+    let destinationCompany = preduzeca.find(p => p.id === parseInt(request.body.destinationCompanyVAT));
+    let originCompany = preduzeca.find(p => p.id === parseInt(request.body.originCompanyVAT));
+
+    let stavke2: Array<Number> = new Array<Number>();
+
+    stavke2.push(parseInt(request.body.item));
+
+    for (let i = 0; i < request.body.counter; i++) {
+        stavke2.push(parseInt(request.body[`item-${i}`]));
+    }
+
+    let deadline = new Date(Date.parse(request.body.paymentDeadline));
+
+    let type: Boolean = request.body.type === "in";
+
+    let options = {
+        method: "PUT",
+        url: `http://localhost:${port}/api/Faktura/edit`,
+        httpsAgent: agent,
+        data: {
+            id: 0,
+            destinationCompanyVAT: destinationCompany?.vat,
+            originCompanyVAT: originCompany?.vat,
+            dateOfCreating: request.body.dateOfCreating,
+            paymentDeadline: deadline,
+            items: stavke2,
+            type: type
+        }
+    };
+
+    axios.request(options).then((res) => {
+        console.log(res.data);
+    }).catch(err => {
+        console.log(err);
+    });
+
+    response.redirect("back");
 });
 
 /*DELETE Methods*/
@@ -638,13 +863,11 @@ app.get("/deletePreduzece/:id", (request: Request, response: Response) => {
 
     response.redirect("/preduzeca?pageNumber=1&pageSize=10");
 });
-
 app.get("/deleteStavka/:id", (request: Request, response: Response) => {
     axios.delete(`http://localhost:${port}/api/Stavka/delete/${request.params["id"]}`);
 
     response.redirect("/stavke?pageNumber=1&pageSize=10");
 });
-
 app.get("/deleteFaktura/:id", (request: Request, response: Response) => {
     axios.delete(`http://localhost:${port}/api/Faktura/delete/${request.params["id"]}`);
 
@@ -652,4 +875,5 @@ app.get("/deleteFaktura/:id", (request: Request, response: Response) => {
     response.redirect("back");
 });
 
+//LISTENER
 app.listen(client_port, () => { console.log(`Client started on port ${client_port}`); });

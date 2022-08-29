@@ -37,48 +37,48 @@
         <form action="/editPreduzece" method="post">
             <div class="row mb-3" hidden>
                 <div class="col">
-                    <input type="number" id="id" name="id" required>
+                    <input type="number" id="id" name="id" value="##ID" required>
                 </div>
             </div>
             <div class="row mb-3">
                 <div class="col">
                     <label for="name">Ime</label>
-                    <input type="text" class="form-control" id="name" name="name" placeholder="Petar" aria-label="Ime" required>
+                    <input type="text" class="form-control" id="name" name="name" placeholder="Petar" aria-label="Ime" value="##NAME" required>
                 </div>
                 <div class="col">
                     <label for="lastName">Prezime</label>
-                    <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Petrovic" aria-label="Prezime" required>
+                    <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Petrovic" aria-label="Prezime" value="##LASTNAME" required>
                 </div>
             </div>
             <div class="row mb-3">
                 <div class="col">
                     <label for="phone">Broj telefona</label>
-                    <input type="text" class="form-control" id="phone" name="phone" placeholder="+381601234567" aria-label="Telefon" required>
+                    <input type="text" class="form-control" id="phone" name="phone" placeholder="+381601234567" aria-label="Telefon" value="##PHONE" required>
                 </div>
                 <div class="col">
                     <label for="email">E-mail adresa</label>
-                    <input type="email" class="form-control" id="email" name="email" placeholder="petarp@email.com" aria-label="E-mail" required>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="petarp@email.com" aria-label="E-mail" value="##EMAIL" required>
                 </div>
             </div>
             <div class="row mb-3">
                 <div class="col">
                     <label for="companyName">Naziv preduzeca</label>
-                    <input type="text" class="form-control" id="companyName" name="companyName" placeholder="Naziv preduzeca" aria-label="Naziv preduzeca" required>
+                    <input type="text" class="form-control" id="companyName" name="companyName" placeholder="Naziv preduzeca" aria-label="Naziv preduzeca" value="##COMPANYNAME" required>
                 </div>
                 <div class="col">
                     <label for="companyAddress">Adresa preduzeca</label>
-                    <input type="text" class="form-control" id="companyAddress" name="companyAddress" placeholder="Adresa preduzeca" aria-label="Adresa preduzeca" required>
+                    <input type="text" class="form-control" id="companyAddress" name="companyAddress" placeholder="Adresa preduzeca" aria-label="Adresa preduzeca" value="##COMPANYADDRESS" required>
                 </div>
             </div>
             <div class="row mb-3">
                 <div class="col">
                     <label for="vat">PIB</label>
-                    <input type="text" class="form-control" id="vat" name="vat" placeholder="012345678" aria-label="PIB" required>
+                    <input type="text" class="form-control" id="vat" name="vat" placeholder="012345678" aria-label="PIB" value="##VAT" required>
                 </div>
             </div>
             <div class="row mb-3">
                 <div class="col">
-                    <button type="submit" class="btn btn-primary w-100" id="addPreduzece">Dodaj novo preduzece</button>
+                    <button type="submit" class="btn btn-primary w-100" id="editPreduzece">Dodaj novo preduzece</button>
                 </div>
             </div>
         </form>

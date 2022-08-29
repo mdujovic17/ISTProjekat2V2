@@ -32,6 +32,21 @@ namespace ISTWebAPI.Controllers
             return NotFound("Lista faktura nije popunjena");
         }
 
+        [HttpGet("get/byId/{id}")]
+        public IActionResult getFaktura(int id)
+        {
+            var lint = Faktura.fakture.FirstOrDefault(p => p.id == id);
+
+            if (lint == null)
+            {
+                return NotFound("Ne postoji faktura sa ovakvim identifikatorom.");
+            }
+            else
+            {
+                return Ok(new Response<Faktura>(lint));
+            }
+        }
+
         [HttpGet("get/{companyVAT}")]
         public IActionResult getAll(string companyVAT, [FromQuery] PaginationFilter filter)
         {
