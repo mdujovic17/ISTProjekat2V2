@@ -2,6 +2,8 @@
 {
     public class Faktura
     {
+        public static List<Faktura> fakture = new List<Faktura>() { };
+
         public int id { get; set; }
         public string destinationCompanyVAT { get; set; }
         public string originCompanyVAT { get; set; }

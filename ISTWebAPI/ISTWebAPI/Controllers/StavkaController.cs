@@ -12,8 +12,6 @@ namespace ISTWebAPI.Controllers
     [ApiController]
     public class StavkaController : ControllerBase
     {
-        private static List<Stavka> stavke = new List<Stavka>() { };
-
         private readonly ILogger<StavkaController> logger;
         
         public StavkaController(ILogger<StavkaController> logger)
@@ -24,7 +22,7 @@ namespace ISTWebAPI.Controllers
         [HttpGet("get/stavka/all")]
         public IActionResult getAll()
         {
-            var linq = stavke.OrderBy(s => s.name).ThenBy(s => s.pricePerUnit).ToList();
+            var linq = Stavka.stavke.OrderBy(s => s.name).ThenBy(s => s.pricePerUnit).ToList();
 
             if (linq != null)
             {
@@ -37,7 +35,7 @@ namespace ISTWebAPI.Controllers
         [HttpGet("get/stavka")]
         public IActionResult getAll([FromQuery] PaginationFilter filter)
         {
-            var linq = stavke.OrderBy(s => s.name).ThenBy(s => s.pricePerUnit).ToList();
+            var linq = Stavka.stavke.OrderBy(s => s.name).ThenBy(s => s.pricePerUnit).ToList();
             var vFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
             var paged = linq.Skip((vFilter.PageNumber - 1) * vFilter.PageSize).Take(vFilter.PageSize).ToList();
 
@@ -52,7 +50,7 @@ namespace ISTWebAPI.Controllers
         [HttpGet("get/stavka/{id}")]
         public IActionResult getStavka(int id)
         {
-            var linq = stavke.FirstOrDefault(s => s.id == id);
+            var linq = Stavka.stavke.FirstOrDefault(s => s.id == id);
 
             if (linq == null)
             {
@@ -72,14 +70,14 @@ namespace ISTWebAPI.Controllers
                 if (validateStavka(stavka))
                 {
                     int id = 0;
-                    if (stavke.Count != 0)
+                    if (Stavka.stavke.Count != 0)
                     {
-                        id = stavke.OrderByDescending(p => p.id).First().id + 1;
+                        id = Stavka.stavke.OrderByDescending(p => p.id).First().id + 1;
                     }
 
                     stavka.id = id;
 
-                    stavke.Add(stavka);
+                    Stavka.stavke.Add(stavka);
                     logger.Log(LogLevel.Information, "Dodata nova stavka sa ID: " + stavka.id);
                     return Ok(new Response<Stavka>(stavka));
                 }
@@ -97,9 +95,9 @@ namespace ISTWebAPI.Controllers
         [HttpPut("edit/stavka")]
         public IActionResult putStavka([FromBody] Stavka stavka)
         {
-            var s = stavke.FirstOrDefault(s => s.id == stavka.id);
+            var s = Stavka.stavke.FirstOrDefault(s => s.id == stavka.id);
 
-            if (stavke.Count > 0)
+            if (Stavka.stavke.Count > 0)
             {
                 if (s != null)
                 {
@@ -125,7 +123,7 @@ namespace ISTWebAPI.Controllers
         [HttpDelete("delete/stavka/{id}")]
         public IActionResult deleteStavka(int id)
         {
-            var linq = stavke.FirstOrDefault(s => s.id == id);
+            var linq = Stavka.stavke.FirstOrDefault(s => s.id == id);
 
             if (linq == null)
             {
@@ -133,7 +131,7 @@ namespace ISTWebAPI.Controllers
             }
             else
             {
-                if (stavke.Remove(linq))
+                if (Stavka.stavke.Remove(linq))
                 {
                     return Ok(new Response<Stavka>(linq));
                 }

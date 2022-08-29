@@ -10,7 +10,7 @@ namespace ISTWebAPI.Controllers
     [ApiController]
     public class FakturaController : ControllerBase
     {
-        private static List<Faktura> fakture = new List<Faktura>() { };
+        //private static List<Faktura> fakture = new List<Faktura>() { };
 
         private ILogger<FakturaController> logger;
 
@@ -22,7 +22,7 @@ namespace ISTWebAPI.Controllers
         [HttpGet("get/faktura/all")]
         public IActionResult getAll()
         {
-            var linq = fakture.OrderBy(f => f.originCompanyVAT).ThenBy(f => f.destinationCompanyVAT).ToList();
+            var linq = Faktura.fakture.OrderBy(f => f.originCompanyVAT).ThenBy(f => f.destinationCompanyVAT).ToList();
 
             if (linq != null)
             {
@@ -35,7 +35,7 @@ namespace ISTWebAPI.Controllers
         [HttpGet("get/faktura/{companyVAT}")]
         public IActionResult getAll(string companyVAT, [FromQuery] PaginationFilter filter)
         {
-            var linq = fakture.Where(f => f.originCompanyVAT == companyVAT || f.destinationCompanyVAT == companyVAT).OrderBy(f => f.originCompanyVAT).ThenBy(f => f.destinationCompanyVAT).ToList();
+            var linq = Faktura.fakture.Where(f => f.originCompanyVAT == companyVAT || f.destinationCompanyVAT == companyVAT).OrderBy(f => f.originCompanyVAT).ThenBy(f => f.destinationCompanyVAT).ToList();
             var vFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
             var paged = linq.Skip((vFilter.PageNumber - 1) * vFilter.PageSize).Take(vFilter.PageSize).ToList(); 
 
@@ -53,14 +53,20 @@ namespace ISTWebAPI.Controllers
             if (ModelState.IsValid)
             {
                 int id = 0;
-                if (fakture.Count != 0)
+                if (Faktura.fakture.Count != 0)
                 {
-                    id = fakture.OrderByDescending(f => f.id).First().id + 1;
+                    id = Faktura.fakture.OrderByDescending(f => f.id).First().id + 1;
+                }
+                float sum = 0;
+                foreach(Stavka s in faktura.items)
+                {
+                    sum += s.pricePerUnit * s.amount;
                 }
 
                 faktura.id = id;
+                faktura.priceTotal = sum;
 
-                fakture.Add(faktura);
+                Faktura.fakture.Add(faktura);
                 logger.Log(LogLevel.Information, "Dodata nova faktura sa ID: " + faktura.id);
                 return Ok(new Response<Faktura>(faktura));
             }
@@ -70,12 +76,12 @@ namespace ISTWebAPI.Controllers
             }
         }
 
-        [HttpPut("edit/stavka")]
+        [HttpPut("edit/faktura")]
         public IActionResult putFaktura([FromBody] Faktura faktura)
         {
-            var f = fakture.FirstOrDefault(f => f.id == faktura.id);
+            var f = Faktura.fakture.FirstOrDefault(f => f.id == faktura.id);
 
-            if (fakture.Count > 0)
+            if (Faktura.fakture.Count > 0)
             {
                 if (f != null)
                 {
@@ -104,7 +110,7 @@ namespace ISTWebAPI.Controllers
         [HttpDelete("delete/faktura/{id}")]
         public IActionResult deleteFaktura(int id)
         {
-            var linq = fakture.FirstOrDefault(f => f.id == id);
+            var linq = Faktura.fakture.FirstOrDefault(f => f.id == id);
 
             if (linq == null)
             {
@@ -112,7 +118,7 @@ namespace ISTWebAPI.Controllers
             }
             else
             {
-                if (fakture.Remove(linq))
+                if (Faktura.fakture.Remove(linq))
                 {
                     return Ok(new Response<Faktura>(linq));
                 }

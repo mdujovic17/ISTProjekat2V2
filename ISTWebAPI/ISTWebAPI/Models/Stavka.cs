@@ -4,6 +4,8 @@ namespace ISTWebAPI.Models
 {
     public class Stavka
     {
+        public static List<Stavka> stavke = new List<Stavka>() { };
+
         [Required]
         public int id { get; set; }
         [Required]
