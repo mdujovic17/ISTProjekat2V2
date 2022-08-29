@@ -88,9 +88,9 @@ app.get('/preduzeca/:pageNumber?/:pageSize?', async (req: Request, res: Response
                     <td>${element.companyName}</td>
                     <td colspan="2">${element.vat}</td>
                 
-                    <td><a class="text-info" href="/details/${element.id}"><i class="fa fa-circle-info"></i></a></td>
-                    <td><a class="text-warning" href="/edit/${element.id}"><i class="fa fa-pen"></i></a></td>
-                    <td><a class="text-danger" href="/delete/${element.id}"><i class="fa fa-trash"></i></a></td>
+                    <td><a class="text-info" href="/detailsPreduzece/${element.id}"><i class="fa fa-circle-info"></i></a></td>
+                    <td><a class="text-warning" href="/editPreduzece/${element.id}"><i class="fa fa-pen"></i></a></td>
+                    <td><a class="text-danger" href="/deletePreduzece/${element.id}"><i class="fa fa-trash"></i></a></td>
                 </tr>`;
             });
             res.send(getView("preduzeca").replace("##TABLEDATA", view));
@@ -335,6 +335,7 @@ app.post("/addFaktura", async (request: Request, response: Response) => {
     }).catch(err => {
         console.log(err);
     });
+
     response.redirect("/preduzeca?pageNumber=1&pageSize=10");
 })
 
@@ -359,5 +360,24 @@ app.put("/editFaktura/:id", async (request: Request, response: Response) => {
 });
 
 //DELETE Methods
+
+app.get("/deletePreduzece/:id", (request: Request, response: Response) => {
+    axios.delete(`http://localhost:${port}/api/Preduzece/delete/preduzece/${request.params["id"]}`);
+
+    response.redirect("/preduzeca?pageNumber=1&pageSize=10");
+});
+
+app.get("/deleteStavka/:id", (request: Request, response: Response) => {
+    axios.delete(`http://localhost:${port}/api/Stavka/delete/stavka/${request.params["id"]}`);
+
+    response.redirect("/stavke?pageNumber=1&pageSize=10");
+});
+
+app.get("/deleteFaktura/:id", (request: Request, response: Response) => {
+    axios.delete(`http://localhost:${port}/api/Faktura/delete/faktura/${request.params["id"]}`);
+
+    response.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
+    response.redirect("back");
+});
 
 app.listen(client_port, () => { console.log(`Client started on port ${client_port}`); });

@@ -35,10 +35,10 @@ app.get('/preduzeca/:pageNumber?/:pageSize?', async (req, res) => {
         url: `http://localhost:${port}/api/Preduzece/get/preduzece?PageNumber=${req.query["pageNumber"]}&PageSize=${req.query["pageSize"]}`,
         httpsAgent: agent
     };
-    console.log(options.url);
-    console.log(req.query);
+    //console.log(options.url);
+    //console.log(req.query);
     axios_1.default.request(options).then((response) => {
-        console.log(response.data);
+        //console.log(response.data)
         let view = ``;
         if (response.data != null) {
             response.data.data.forEach((element) => {
@@ -50,9 +50,9 @@ app.get('/preduzeca/:pageNumber?/:pageSize?', async (req, res) => {
                     <td>${element.companyName}</td>
                     <td colspan="2">${element.vat}</td>
                 
-                    <td><a class="text-info" href="/details/${element.id}"><i class="fa fa-circle-info"></i></a></td>
-                    <td><a class="text-warning" href="/edit/${element.id}"><i class="fa fa-pen"></i></a></td>
-                    <td><a class="text-danger" href="/delete/${element.id}"><i class="fa fa-trash"></i></a></td>
+                    <td><a class="text-info" href="/detailsPreduzece/${element.id}"><i class="fa fa-circle-info"></i></a></td>
+                    <td><a class="text-warning" href="/editPreduzece/${element.id}"><i class="fa fa-pen"></i></a></td>
+                    <td><a class="text-danger" href="/deletePreduzece/${element.id}"><i class="fa fa-trash"></i></a></td>
                 </tr>`;
             });
             res.send(getView("preduzeca").replace("##TABLEDATA", view));
@@ -115,8 +115,8 @@ app.get("/addFaktura", async (request, response) => {
         console.log(err);
     });
     await delay(500);
-    console.log(preduzeca);
-    console.log(stavke);
+    //console.log(preduzeca);
+    //console.log(stavke);
     let view = getView("add/faktura");
     let preduzecaStr = ``;
     let stavkeStr = ``;
@@ -223,9 +223,9 @@ app.post("/addFaktura", async (request, response) => {
     let destinationCompany = preduzeca.find(p => p.id === parseInt(request.body.destinationCompanyVAT));
     let originCompany = preduzeca.find(p => p.id === parseInt(request.body.originCompanyVAT));
     let stavke2 = new Array();
-    console.log(destinationCompany);
-    console.log(originCompany);
-    console.log(request.body);
+    //console.log(destinationCompany);
+    //console.log(originCompany);
+    //console.log(request.body);
     let prvaStavka = stavke.find(s => s.id === parseInt(request.body.item));
     stavke2.push(prvaStavka);
     for (let i = 0; i < request.body.counter; i++) {
@@ -248,8 +248,8 @@ app.post("/addFaktura", async (request, response) => {
             type: type
         }
     };
-    console.log(stavke2);
-    console.log(options.data);
+    //console.log(stavke2);
+    //console.log(options.data);
     axios_1.default.request(options).then((res) => {
         console.log(res.data);
     }).catch(err => {
@@ -271,4 +271,8 @@ app.put("/editFaktura/:id", async (request, response) => {
     response.send(view);
 });
 //DELETE Methods
+app.get("/deletePreduzece/:id", (request, response) => {
+    axios_1.default.delete(`http://localhost:${port}/api/Preduzece/delete/preduzece/${request.params["id"]}`);
+    response.redirect("/preduzeca?pageNumber=1&pageSize=10");
+});
 app.listen(client_port, () => { console.log(`Client started on port ${client_port}`); });
