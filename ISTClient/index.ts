@@ -599,16 +599,16 @@ app.get("/detailsPreduzece/:id/:pageNumber?/:pageSize?", async (request: Request
 
     axios.request(options).then((res) => {
         console.log(res.data.data)
-
+        vat = res.data.data.originCompanyVAT;
         detailsStr = `
         <tr><td>Ime i prezime</td><td>${res.data.data.name} ${res.data.data.lastName}</td></tr>
         <tr><td>Telefon</td><td>${res.data.data.phoneNumber}</td></tr>
         <tr><td>Adresa</td><td>${res.data.data.companyAddress}</td></tr>
         <tr><td>Naziv preduzeca</td><td>${res.data.data.companyName}</td></tr>
-        <tr><td>PIB</td><td>${res.data.data.vat}</td></tr>
+        <tr><td>PIB</td><td>${vat}</td></tr>
         `;
 
-        vat = res.data.data.vat;
+        
 
         let pages = ``;
         let previous = ``;
