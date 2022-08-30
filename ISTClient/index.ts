@@ -36,7 +36,7 @@ interface Faktura {
     vatOfOrigin: string;
     dateGenerated: string;
     dateDeadline: string;
-    items: Stavka[];
+    items: number[];
     total: number;
     type: boolean;
 }
@@ -94,7 +94,25 @@ app.get('/preduzeca/:pageNumber?/:pageSize?', async (req: Request, res: Response
                     <td><a class="text-danger" href="/deletePreduzece/${element.id}"><i class="fa fa-trash"></i></a></td>
                 </tr>`;
             });
-            res.send(getView("preduzeca").replace("##TABLEDATA", view));
+
+            let pages = ``;
+            let previous = ``;
+            let next = ``;
+
+            for (let i = 0; i < response.data.totalPages; i++) {
+                pages += `<li class="page-item"><a class="page-link ${response.data.pageNumber === i + 1 ? "active" : ""}" href="/preduzeca?pageNumber=${i + 1}&pageSize=${response.data.pageSize}">${i + 1}</a></li>`;
+            }
+
+            previous = `/preduzeca?pageNumber=${response.data.pageNumber - 1}&pageSize=${response.data.pageSize}`
+            next = `/preduzeca?pageNumber=${response.data.pageNumber + 1}&pageSize=${response.data.pageSize}`
+
+            res.send(getView("preduzeca")
+            .replace("##TABLEDATA", view)
+            .replace("##PAGES", pages)
+            .replace("##PREVIOUS", previous)
+            .replace("##NEXT", next)
+            .replace("##DISABLEDPREV", response.data.pageNumber <= 1 ? "disabled" : "")
+            .replace("##DISABLEDNEXT", response.data.pageNumber >= response.data.totalPages ? "disabled" : ""));
         };
     }).catch(function (error) {
         console.error(error);
@@ -176,7 +194,25 @@ app.get('/stavke/:pageNumber?/:pageSize?', async (req: Request, res: Response) =
                     <td><a class="text-danger" href="/deleteStavka/${element.id}"><i class="fa fa-trash"></i></a></td>
                 </tr>`;
             });
-            res.send(getView("stavke").replace("##TABLEDATA", view));
+
+            let pages = ``;
+            let previous = ``;
+            let next = ``;
+
+            for (let i = 0; i < response.data.totalPages; i++) {
+                pages += `<li class="page-item"><a class="page-link ${response.data.pageNumber === i + 1 ? "active" : ""}" href="/preduzeca?pageNumber=${i + 1}&pageSize=${response.data.pageSize}">${i + 1}</a></li>`;
+            }
+
+            previous = `/preduzeca?pageNumber=${response.data.pageNumber - 1}&pageSize=${response.data.pageSize}`
+            next = `/preduzeca?pageNumber=${response.data.pageNumber + 1}&pageSize=${response.data.pageSize}`
+
+            res.send(getView("stavke")
+            .replace("##TABLEDATA", view)
+            .replace("##PAGES", pages)
+            .replace("##PREVIOUS", previous)
+            .replace("##NEXT", next)
+            .replace("##DISABLEDPREV", response.data.pageNumber <= 1 ? "disabled" : "")
+            .replace("##DISABLEDNEXT", response.data.pageNumber >= response.data.totalPages ? "disabled" : ""));
         };
     }).catch(function (error) {
         console.error(error);
@@ -541,9 +577,11 @@ app.get("/bilansGet", async (request: Request, response: Response) => {
 });
 
 //DETALJI
-app.get("/detailsPreduzece/:id", async (request: Request, response: Response) => {
+app.get("/detailsPreduzece/:id/:pageNumber?/:pageSize?", async (request: Request, response: Response) => {
 
-    let view = getView("details/details");
+    let view = getView("details/detailsPreduzeca");
+
+    let fakture: Array<Faktura> = new Array<Faktura>();
 
     let options = {
         method: "GET",
@@ -551,10 +589,13 @@ app.get("/detailsPreduzece/:id", async (request: Request, response: Response) =>
         httpsAgent: agent
     };
 
+    let vat = "";
+
     console.log(request.query)
     console.log(request.params)
 
     let detailsStr = ``;
+    
 
     axios.request(options).then((res) => {
         console.log(res.data.data)
@@ -567,17 +608,75 @@ app.get("/detailsPreduzece/:id", async (request: Request, response: Response) =>
         <tr><td>PIB</td><td>${res.data.data.vat}</td></tr>
         `;
 
+        vat = res.data.data.vat;
+
+        let pages = ``;
+        let previous = ``;
+        let next = ``;
+
+            for (let i = 0; i < res.data.totalPages; i++) {
+                pages += `<li class="page-item"><a class="page-link ${res.data.pageNumber === i + 1 ? "active" : ""}" href="/detailsPreduzece/${res.data.data.id}?pageNumber=${i + 1}&pageSize=${res.data.pageSize}">${i + 1}</a></li>`;
+            }
+
+            previous = `/detailsPreduzece/${res.data.data.id}?pageNumber=${res.data.pageNumber - 1}&pageSize=${res.data.pageSize}`
+            next = `/detailsPreduzece/${res.data.data.id}?pageNumber=${res.data.pageNumber + 1}&pageSize=${res.data.pageSize}`
         view = view
         .replaceAll("##NAME", res.data.data.companyName)
-        .replaceAll("##EDIT", `/editPreduzece/${res.data.data.id}`)
-        .replaceAll("##DELETE", `/deletePreduzece/${res.data.data.id}`);
+        .replaceAll("##EDIT", `/editFaktura/${res.data.data.id}`)
+        .replaceAll("##DELETE", `/deleteFaktura/${res.data.data.id}`)
+        .replace("##PAGES", pages)
+        .replace("##PREVIOUS", previous)
+        .replace("##NEXT", next)
+        .replace("##DISABLEDPREV", res.data.pageNumber <= 1 ? "disabled" : "")
+        .replace("##DISABLEDNEXT", res.data.pageNumber >= res.data.totalPages ? "disabled" : "");
     }).catch(err => {
         console.log(err);
     });
 
+    console.log(vat);
+
+    let optionsFakture = {
+        method: "GET",
+        url: `http://localhost:${port}/api/Faktura/get/${vat}`,
+        httpsAgent: agent
+    };
+
+    axios.request(optionsFakture).then((res) => {
+        fakture.push({
+            id: res.data.data.id,
+            vat: res.data.data.destinationCompanyVAT,
+            vatOfOrigin: res.data.data.originCompanyVAT,
+            dateGenerated: res.data.data.dateOfCreating,
+            dateDeadline: res.data.data.paymentDeadline,
+            items: res.data.data.items,
+            total: res.data.data.priceTotal,
+            type: res.data.data.type
+        });
+    }).catch(err => {
+        console.log(err)
+    });
+
     await delay(500);
 
-    view = view.replaceAll("##TABLEDATA", detailsStr);
+    let faktureStr = ``;
+
+    fakture.forEach(f => {
+        let type = f.type ? "Ulazna" : "Izlazna"
+
+        faktureStr = `
+        <tr><td>${f.vat}</td>
+        <td>${f.vatOfOrigin}</td>
+        <td>${f.dateGenerated}</td>
+        <td>${f.dateDeadline}</td>
+        <td>${f.total}</td></tr>
+        <td>${type}</td></tr>
+        <td>${type}</td></tr>
+        <td><a class="text-warning" href="/editFaktura/${f.id}"><i class="fa fa-pen"></i></a></td>
+        <td><a class="text-danger" href="/deleteFaktura/${f.id}"><i class="fa fa-trash"></i></a></td>
+        `
+    });
+
+    view = view.replace("##TABLEDATA", detailsStr).replace("##TABLEDATAFAKTURE", faktureStr);
 
     response.send(view);
 });

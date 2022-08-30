@@ -52,27 +52,33 @@ namespace ISTWebAPI.Controllers
         {
             var linq = Faktura.fakture.Where(f => f.originCompanyVAT == companyVAT || f.destinationCompanyVAT == companyVAT).OrderBy(f => f.originCompanyVAT).ThenBy(f => f.destinationCompanyVAT).ToList();
             var vFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
-            var paged = linq.Skip((vFilter.PageNumber - 1) * vFilter.PageSize).Take(vFilter.PageSize).ToList(); 
+            var paged = linq.Skip((vFilter.PageNumber - 1) * vFilter.PageSize).Take(vFilter.PageSize).ToList();
+            
+            var totalRecords = Preduzece.preduzeca.Count();
+            var totalPages = Convert.ToInt32(Math.Ceiling(((double)totalRecords / (double)vFilter.PageSize)));
 
             if (paged != null)
             {
-                return Ok(new PagedResponse<List<Faktura>>(paged, vFilter.PageNumber, vFilter.PageSize));
+                return Ok(new PagedResponse<List<Faktura>>(paged, vFilter.PageNumber, vFilter.PageSize, totalPages, totalRecords));
             }
 
             return NotFound("Lista stavki nije popunjena.");
         }
 
-        [HttpGet("search/{total?}/{itemName?}")]
-        public IActionResult search(float? total, string? itemName, [FromQuery] PaginationFilter filter)
+        [HttpGet("search/{companyVAT}")]
+        public IActionResult search(string companyVAT, [FromQuery] float total, [FromQuery] string itemName, [FromQuery] PaginationFilter filter)
         {
-            
-            var linq = Faktura.fakture.Where(f => f.items.Any(it => Stavka.stavke.Any(s => s.id == it && s.name.Equals(itemName))) || f.priceTotal == total).ToList();
+            var fakture = Faktura.fakture.Where(f => f.originCompanyVAT == companyVAT || f.destinationCompanyVAT == companyVAT).OrderBy(f => f.originCompanyVAT).ThenBy(f => f.destinationCompanyVAT).ToList();
+            var linq = fakture.Where(f => f.items.Any(it => Stavka.stavke.Any(s => s.id == it && s.name.Equals(itemName))) || f.priceTotal == total).ToList();
             var vFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
             var paged = linq.Skip((vFilter.PageNumber - 1) * vFilter.PageSize).Take(vFilter.PageSize).ToList();
 
+            var totalRecords = Preduzece.preduzeca.Count();
+            var totalPages = Convert.ToInt32(Math.Ceiling(((double)totalRecords / (double)vFilter.PageSize)));
+
             if (paged != null)
             {
-                return Ok(new PagedResponse<List<Faktura>>(paged, vFilter.PageNumber, vFilter.PageSize));
+                return Ok(new PagedResponse<List<Faktura>>(paged, vFilter.PageNumber, vFilter.PageSize, totalPages, totalRecords));
             }
             return Problem();
         }

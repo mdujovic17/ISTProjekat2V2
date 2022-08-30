@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using ISTWebAPI.Filters;
+using ISTWebAPI.Services;
 
 namespace ISTWebAPI.Controllers
 {
@@ -22,7 +23,7 @@ namespace ISTWebAPI.Controllers
         }
 
         private readonly ILogger<PreduzeceController>logger;
-
+        private readonly IUriService UriService;
         public PreduzeceController(ILogger<PreduzeceController> logger) {
             this.logger = logger;
         }
@@ -47,9 +48,12 @@ namespace ISTWebAPI.Controllers
             var vFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
             var pagedLinq = linq.Skip((vFilter.PageNumber - 1) * vFilter.PageSize).Take(vFilter.PageSize).ToList();
 
+            var totalRecords = Preduzece.preduzeca.Count();
+            var totalPages = Convert.ToInt32(Math.Ceiling(((double)totalRecords / (double)vFilter.PageSize)));
+
             if (pagedLinq != null)
             {
-                return Ok(new PagedResponse<List<Preduzece>>(pagedLinq, vFilter.PageNumber, vFilter.PageSize));
+                return Ok(new PagedResponse<List<Preduzece>>(pagedLinq, vFilter.PageNumber, vFilter.PageSize, totalPages, totalRecords));
             }
             return Problem("Lista preduzeca nije popunjena.");
         }
@@ -75,9 +79,12 @@ namespace ISTWebAPI.Controllers
             var vFilter = new PaginationFilter(filter1.PageNumber, filter1.PageSize);
             var linq = Preduzece.preduzeca.Where(p => p.vat.Contains(query) || p.companyName.Contains(query)).ToList();
 
+            var totalRecords = Preduzece.preduzeca.Count();
+            var totalPages = Convert.ToInt32(Math.Ceiling(((double)totalRecords / (double)vFilter.PageSize)));
+
             if (linq != null)
             {
-                return Ok(new PagedResponse<List<Preduzece>>(linq, vFilter.PageNumber, vFilter.PageSize));
+                return Ok(new PagedResponse<List<Preduzece>>(linq, vFilter.PageNumber, vFilter.PageSize, totalPages, totalRecords));
             }
             return Problem();
         }
