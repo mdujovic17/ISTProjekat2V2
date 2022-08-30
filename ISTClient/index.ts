@@ -599,16 +599,16 @@ app.get("/detailsPreduzece/:id/:pageNumber?/:pageSize?", async (request: Request
 
     axios.request(options).then((res) => {
         console.log(res.data.data)
-        vat = res.data.data.originCompanyVAT;
+        
         detailsStr = `
         <tr><td>Ime i prezime</td><td>${res.data.data.name} ${res.data.data.lastName}</td></tr>
         <tr><td>Telefon</td><td>${res.data.data.phoneNumber}</td></tr>
         <tr><td>Adresa</td><td>${res.data.data.companyAddress}</td></tr>
         <tr><td>Naziv preduzeca</td><td>${res.data.data.companyName}</td></tr>
-        <tr><td>PIB</td><td>${vat}</td></tr>
+        <tr><td>PIB</td><td>${res.data.data.vat}</td></tr>
         `;
 
-        
+        vat = res.data.data.vat;
 
         let pages = ``;
         let previous = ``;
@@ -633,7 +633,9 @@ app.get("/detailsPreduzece/:id/:pageNumber?/:pageSize?", async (request: Request
         console.log(err);
     });
 
-    console.log(vat);
+    await delay(500);
+
+    //console.log("VAT: " + vat);
 
     let optionsFakture = {
         method: "GET",
@@ -642,16 +644,20 @@ app.get("/detailsPreduzece/:id/:pageNumber?/:pageSize?", async (request: Request
     };
 
     axios.request(optionsFakture).then((res) => {
-        fakture.push({
-            id: res.data.data.id,
-            vat: res.data.data.destinationCompanyVAT,
-            vatOfOrigin: res.data.data.originCompanyVAT,
-            dateGenerated: res.data.data.dateOfCreating,
-            dateDeadline: res.data.data.paymentDeadline,
-            items: res.data.data.items,
-            total: res.data.data.priceTotal,
-            type: res.data.data.type
-        });
+
+        console.log(res.data.data);
+        for (let i = 0; i < res.data.data.length; i++) {
+            fakture.push({
+                id: res.data.data[i].id,
+                vat: res.data.data[i].destinationCompanyVAT,
+                vatOfOrigin: res.data.data[i].originCompanyVAT,
+                dateGenerated: res.data.data[i].dateOfCreating,
+                dateDeadline: res.data.data[i].paymentDeadline,
+                items: res.data.data[i].items,
+                total: res.data.data[i].priceTotal,
+                type: res.data.data[i].type
+            });
+        }
     }).catch(err => {
         console.log(err)
     });
@@ -668,13 +674,14 @@ app.get("/detailsPreduzece/:id/:pageNumber?/:pageSize?", async (request: Request
         <td>${f.vatOfOrigin}</td>
         <td>${f.dateGenerated}</td>
         <td>${f.dateDeadline}</td>
-        <td>${f.total}</td></tr>
-        <td>${type}</td></tr>
-        <td>${type}</td></tr>
+        <td>${f.total}</td>
+        <td>${type}</td>
         <td><a class="text-warning" href="/editFaktura/${f.id}"><i class="fa fa-pen"></i></a></td>
         <td><a class="text-danger" href="/deleteFaktura/${f.id}"><i class="fa fa-trash"></i></a></td>
         `
     });
+
+    await delay(250);
 
     view = view.replace("##TABLEDATA", detailsStr).replace("##TABLEDATAFAKTURE", faktureStr);
 
