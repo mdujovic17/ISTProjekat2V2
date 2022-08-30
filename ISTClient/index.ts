@@ -133,8 +133,8 @@ app.get('/searchPreduzeca/:query?/:pageNumber?/:pageSize?', async (req: Request,
         httpsAgent: agent
     }
 
-    console.log(options.url);
-    console.log(req.query);
+    //console.log(options.url);
+    //console.log(req.query);
 
     axios.request(options).then((response) => {
         let view = ``;
@@ -153,7 +153,24 @@ app.get('/searchPreduzeca/:query?/:pageNumber?/:pageSize?', async (req: Request,
                     <td><a class="text-danger" href="/deletePreduzece/${element.id}"><i class="fa fa-trash"></i></a></td>
                 </tr>`;
             });
-            res.send(getView("preduzeca").replace("##TABLEDATA", view));
+
+            let pages = ``;
+            let previous = ``;
+            let next = ``;
+
+            for (let i = 0; i < response.data.totalPages; i++) {
+                pages += `<li class="page-item"><a class="page-link ${response.data.pageNumber === i + 1 ? "active" : ""}" href="/preduzeca?pageNumber=${i + 1}&pageSize=${response.data.pageSize}">${i + 1}</a></li>`;
+            }
+
+            previous = `/preduzeca?pageNumber=${response.data.pageNumber - 1}&pageSize=${response.data.pageSize}`
+            next = `/preduzeca?pageNumber=${response.data.pageNumber + 1}&pageSize=${response.data.pageSize}`
+
+            res.send(getView("preduzeca").replace("##TABLEDATA", view)
+            .replace("##PAGES", pages)
+            .replace("##PREVIOUS", previous)
+            .replace("##NEXT", next)
+            .replace("##DISABLEDPREV", response.data.pageNumber <= 1 ? "disabled" : "")
+            .replace("##DISABLEDNEXT", response.data.pageNumber >= response.data.totalPages ? "disabled" : ""));
         };
     }).catch(function (error) {
         console.error(error);
@@ -178,7 +195,7 @@ app.get('/stavke/:pageNumber?/:pageSize?', async (req: Request, res: Response) =
     //console.log(req.query);
 
     axios.request(options).then((response) => {
-        //console.log(response.data)
+        console.log(response.data)
         let view = ``;
         if (response.data != null) {
             response.data.data.forEach((element: Stavka) => {
@@ -200,11 +217,11 @@ app.get('/stavke/:pageNumber?/:pageSize?', async (req: Request, res: Response) =
             let next = ``;
 
             for (let i = 0; i < response.data.totalPages; i++) {
-                pages += `<li class="page-item"><a class="page-link ${response.data.pageNumber === i + 1 ? "active" : ""}" href="/preduzeca?pageNumber=${i + 1}&pageSize=${response.data.pageSize}">${i + 1}</a></li>`;
+                pages += `<li class="page-item"><a class="page-link ${response.data.pageNumber === i + 1 ? "active" : ""}" href="/stavke?pageNumber=${i + 1}&pageSize=${response.data.pageSize}">${i + 1}</a></li>`;
             }
 
-            previous = `/preduzeca?pageNumber=${response.data.pageNumber - 1}&pageSize=${response.data.pageSize}`
-            next = `/preduzeca?pageNumber=${response.data.pageNumber + 1}&pageSize=${response.data.pageSize}`
+            previous = `/stavke?pageNumber=${response.data.pageNumber - 1}&pageSize=${response.data.pageSize}`
+            next = `/stavke?pageNumber=${response.data.pageNumber + 1}&pageSize=${response.data.pageSize}`
 
             res.send(getView("stavke")
             .replace("##TABLEDATA", view)
@@ -579,6 +596,11 @@ app.get("/bilansGet", async (request: Request, response: Response) => {
 //DETALJI
 app.get("/detailsPreduzece/:id/:pageNumber?/:pageSize?", async (request: Request, response: Response) => {
 
+    if (!request.query.pageNumber && !request.query.pageSize) {
+        (request.query.pageNumber as unknown as Number) = 1;
+        (request.query.pageSize as unknown as Number) = 10;
+    }
+
     let view = getView("details/detailsPreduzeca");
 
     let fakture: Array<Faktura> = new Array<Faktura>();
@@ -610,32 +632,15 @@ app.get("/detailsPreduzece/:id/:pageNumber?/:pageSize?", async (request: Request
 
         vat = res.data.data.vat;
 
-        let pages = ``;
-        let previous = ``;
-        let next = ``;
-
-            for (let i = 0; i < res.data.totalPages; i++) {
-                pages += `<li class="page-item"><a class="page-link ${res.data.pageNumber === i + 1 ? "active" : ""}" href="/detailsPreduzece/${res.data.data.id}?pageNumber=${i + 1}&pageSize=${res.data.pageSize}">${i + 1}</a></li>`;
-            }
-
-            previous = `/detailsPreduzece/${res.data.data.id}?pageNumber=${res.data.pageNumber - 1}&pageSize=${res.data.pageSize}`
-            next = `/detailsPreduzece/${res.data.data.id}?pageNumber=${res.data.pageNumber + 1}&pageSize=${res.data.pageSize}`
         view = view
         .replaceAll("##NAME", res.data.data.companyName)
         .replaceAll("##EDIT", `/editFaktura/${res.data.data.id}`)
-        .replaceAll("##DELETE", `/deleteFaktura/${res.data.data.id}`)
-        .replace("##PAGES", pages)
-        .replace("##PREVIOUS", previous)
-        .replace("##NEXT", next)
-        .replace("##DISABLEDPREV", res.data.pageNumber <= 1 ? "disabled" : "")
-        .replace("##DISABLEDNEXT", res.data.pageNumber >= res.data.totalPages ? "disabled" : "");
+        .replaceAll("##DELETE", `/deleteFaktura/${res.data.data.id}`);
     }).catch(err => {
         console.log(err);
     });
 
-    await delay(500);
-
-    //console.log("VAT: " + vat);
+    await delay(250);
 
     let optionsFakture = {
         method: "GET",
@@ -643,9 +648,9 @@ app.get("/detailsPreduzece/:id/:pageNumber?/:pageSize?", async (request: Request
         httpsAgent: agent
     };
 
-    axios.request(optionsFakture).then((res) => {
+    axios.request(optionsFakture).then(async (res) => {
 
-        console.log(res.data.data);
+        console.log(res.data);
         for (let i = 0; i < res.data.data.length; i++) {
             fakture.push({
                 id: res.data.data[i].id,
@@ -657,7 +662,30 @@ app.get("/detailsPreduzece/:id/:pageNumber?/:pageSize?", async (request: Request
                 total: res.data.data[i].priceTotal,
                 type: res.data.data[i].type
             });
+
+            await delay(100)
         }
+
+        let pages = ``;
+        let previous = ``;
+        let next = ``;
+
+
+        for (let i = 0; i < res.data.totalPages; i++) {
+            pages += `<li class="page-item"><a class="page-link ${res.data.pageNumber === i + 1 ? "active" : ""}" href="/detailsPreduzece/${res.data.data.id}?pageNumber=${i + 1}&pageSize=${res.data.pageSize}">${i + 1}</a></li>`;
+        }
+        previous = `/detailsPreduzece/${res.data.data.id}?pageNumber=${res.data.pageNumber - 1}&pageSize=${res.data.pageSize}`
+        next = `/detailsPreduzece/${res.data.data.id}?pageNumber=${res.data.pageNumber + 1}&pageSize=${res.data.pageSize}`
+
+        previous = `/detailsPreduzece/${res.data.data.id}?pageNumber=${res.data.pageNumber - 1}&pageSize=${res.data.pageSize}`
+        next = `/detailsPreduzece/${res.data.data.id}?pageNumber=${res.data.pageNumber + 1}&pageSize=${res.data.pageSize}`
+        
+        view = view
+        .replace("##PAGES", pages)
+        .replace("##PREVIOUS", previous)
+        .replace("##NEXT", next)
+        .replace("##DISABLEDPREV", res.data.pageNumber <= 1 ? "disabled" : "")
+        .replace("##DISABLEDNEXT", res.data.pageNumber >= res.data.totalPages ? "disabled" : "")
     }).catch(err => {
         console.log(err)
     });
@@ -666,10 +694,12 @@ app.get("/detailsPreduzece/:id/:pageNumber?/:pageSize?", async (request: Request
 
     let faktureStr = ``;
 
+    console.log(fakture);
+
     fakture.forEach(f => {
         let type = f.type ? "Ulazna" : "Izlazna"
 
-        faktureStr = `
+        faktureStr += `
         <tr><td>${f.vat}</td>
         <td>${f.vatOfOrigin}</td>
         <td>${f.dateGenerated}</td>

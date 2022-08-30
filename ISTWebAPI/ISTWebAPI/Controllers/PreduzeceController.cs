@@ -79,7 +79,7 @@ namespace ISTWebAPI.Controllers
             var vFilter = new PaginationFilter(filter1.PageNumber, filter1.PageSize);
             var linq = Preduzece.preduzeca.Where(p => p.vat.Contains(query) || p.companyName.Contains(query)).ToList();
 
-            var totalRecords = Preduzece.preduzeca.Count();
+            var totalRecords = linq.Count();
             var totalPages = Convert.ToInt32(Math.Ceiling(((double)totalRecords / (double)vFilter.PageSize)));
 
             if (linq != null)

@@ -54,7 +54,7 @@ namespace ISTWebAPI.Controllers
             var vFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
             var paged = linq.Skip((vFilter.PageNumber - 1) * vFilter.PageSize).Take(vFilter.PageSize).ToList();
             
-            var totalRecords = Preduzece.preduzeca.Count();
+            var totalRecords = paged.Count();
             var totalPages = Convert.ToInt32(Math.Ceiling(((double)totalRecords / (double)vFilter.PageSize)));
 
             if (paged != null)
@@ -73,7 +73,7 @@ namespace ISTWebAPI.Controllers
             var vFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
             var paged = linq.Skip((vFilter.PageNumber - 1) * vFilter.PageSize).Take(vFilter.PageSize).ToList();
 
-            var totalRecords = Preduzece.preduzeca.Count();
+            var totalRecords = paged.Count();
             var totalPages = Convert.ToInt32(Math.Ceiling(((double)totalRecords / (double)vFilter.PageSize)));
 
             if (paged != null)
